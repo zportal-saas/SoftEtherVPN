@@ -2625,8 +2625,8 @@ B_CREATE_LISTENER		創建(&R)
 B_DELETE_LISTENER		刪除(&T)
 B_START					開始(&G)
 B_STOP					停止(&P)
-S_UDP					Multiple UDP ports can be specified by splitting them with a space or a comma. Leave empty to disable the UDP listener.
-B_APPLY					Apply
+S_UDP		可以指定多個 UDP 連接埠，以空格或逗號分隔。留空則停用 UDP 接聽程式。
+B_APPLY		套用(&A)
 STATIC3					VPN Server 和網路資訊和設置(&N)
 B_SSL					加密與網路(&E)
 B_STATUS				查看伺服器狀態(&V)
@@ -2690,30 +2690,33 @@ S_MSG_2					當 VPN Client 連接到這個虛擬 HUB 時，顯示在螢幕上一
 B_MSG					資訊設置(&M)
 
 
-PREFIX					D_SM_CREATE_LISTENER
-CAPTION					創建監聽器
-STATIC1					您可以為 VPN Server 添加一個 TCP/IP 埠號，來接收從用戶端來的連接。\r\n\r\n請指定要添加的埠號。
-STATIC2					如果埠號已經被其它服務端程式使用，則新監聽器的狀態將被被更改為錯誤狀態。\r\n\r\n此時，請停止打開相同埠的其他程式。
-STATIC3					埠號(&P):
-IDOK					確定(&O)
-IDCANCEL				取消
-STATIC4				(TCP/IP 埠)
-
-S_BINDIP				繫結 IP 位址(&B):
-S_BINDIP_NOTE				(留空: 所有網路介面)
-
-
+PREFIX		D_SM_CREATE_LISTENER
+CAPTION		創建監聽器
+STATIC1		您可以為 VPN Server 添加一個 TCP/IP 埠號，來接收從用戶端來的連接。\r\n\r\n請指定要添加的埠號。
+STATIC2		如果埠號已經被其它服務端程式使用，則新監聽器的狀態將被被更改為錯誤狀態。\r\n\r\n此時，請停止打開相同埠的其他程式。
+STATIC3		埠號(&P):
+STATIC4		(TCP/IP 埠)
+S_GROUP_PROXY		PROXY 通訊協定
 R_PROXY_PROTOCOL	接受 PROXY 通訊協定標頭 (v1 / v2 自動識別)
+S_GROUP_BINDIP		繫結 IP 位址
+S_BINDIP		繫結 IP 位址(&B):
+S_BINDIP_NOTE		(留空: 所有網路介面)
+IDOK		確定(&O)
+IDCANCEL		取消
 
 
-PREFIX				D_SM_EDIT_LISTENER
-CAPTION	接聽程式設定
-STATIC1	您可以變更此 TCP/IP 接聽程式的設定。
-S_PORT	TCP/IP 接聽程式: TCP %u
+PREFIX		D_SM_EDIT_LISTENER
+CAPTION		接聽程式設定
+STATIC1		您可以變更此 TCP/IP 接聽程式的設定。
+S_PORT		TCP/IP 接聽程式: TCP %u
+S_GROUP_PROXY		PROXY 通訊協定
 R_PROXY_PROTOCOL	接受 PROXY 通訊協定標頭 (v1 / v2 自動識別)
-S_BINDIP				繫結 IP 位址(&B):
-S_BINDIP_NOTE				(留空: 所有網路介面。變更後接聽程式將重新啟動。)
-STATIC2	PROXY 通訊協定設定立即生效，不影響現有連線。變更繫結 IP 位址會重新啟動接聽程式並中斷其上的連線。
+S_PROXY_NOTE		修改立即生效，不影響現有連線。
+S_GROUP_BINDIP		繫結 IP 位址
+S_BINDIP		繫結 IP 位址(&B):
+S_BINDIP_NOTE		留空表示繫結所有網路介面。變更後接聽程式將重新啟動並中斷其上的連線。
+IDOK		確定(&O)
+IDCANCEL		取消
 
 PREFIX					D_SM_SSL
 CAPTION					加密和網路設置

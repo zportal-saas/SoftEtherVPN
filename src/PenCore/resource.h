@@ -1147,7 +1147,7 @@
 
 // PROXY protocol related controls
 #define R_PROXY_PROTOCOL                1523
-#define B_EDIT_LISTENER                 1524
+#define S_GROUP_PROXY                   1524
 #define S_PP_NETWORKS                   1525
 #define E_PP_NETWORKS                   1526
 #define S_PP_INFO                       1527
@@ -1157,6 +1157,8 @@
 #define E_BINDIP                        1529
 #define S_BINDIP                        1530
 #define S_BINDIP_NOTE                   1531
+#define S_GROUP_BINDIP                  1532
+#define S_PROXY_NOTE                    1533
 #define ID_Menu40011                    40011
 #define CMD_CONNECT                     40020
 #define CMD_STATUS                      40021

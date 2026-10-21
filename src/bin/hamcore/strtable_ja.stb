@@ -2674,30 +2674,33 @@ S_MSG_2					この仮想 HUB に VPN Client が接続した際に、ユーザー
 B_MSG					メッセージの設定(&G)
 
 
-PREFIX					D_SM_CREATE_LISTENER
-CAPTION					リスナーの新規作成
-STATIC1					VPN Server がクライアントからの接続を待ち受ける TCP/IP ポート番号を追加することができます。\r\n\r\n新しく追加するポート番号を指定してください。
-STATIC2					ポート番号がすでに別のサーバー プログラムによって使用されている場合など、ポートの確保に失敗した場合は、リスナーの状態がエラー状態となります。\r\n\r\nその場合は、同じポート番号を開いている別のプログラムを停止してください。
-STATIC3					ポート番号(&P):
-IDOK					&OK
-IDCANCEL				キャンセル
-STATIC4				(TCP/IP ポート)
-
-S_BINDIP				バインド IP アドレス(&B):
-S_BINDIP_NOTE				(空欄: すべてのインターフェイス)
-
-
+PREFIX		D_SM_CREATE_LISTENER
+CAPTION		リスナーの新規作成
+STATIC1		VPN Server がクライアントからの接続を待ち受ける TCP/IP ポート番号を追加することができます。\r\n\r\n新しく追加するポート番号を指定してください。
+STATIC2		ポート番号がすでに別のサーバー プログラムによって使用されている場合など、ポートの確保に失敗した場合は、リスナーの状態がエラー状態となります。\r\n\r\nその場合は、同じポート番号を開いている別のプログラムを停止してください。
+STATIC3		ポート番号(&P):
+STATIC4		(TCP/IP ポート)
+S_GROUP_PROXY		PROXY プロトコル
 R_PROXY_PROTOCOL	PROXY プロトコルヘッダー (v1 / v2 自動判別) を受け入れる
+S_GROUP_BINDIP		バインド IP アドレス
+S_BINDIP		バインド IP アドレス(&B):
+S_BINDIP_NOTE		(空欄: すべてのインターフェイス)
+IDOK		&OK
+IDCANCEL		キャンセル
 
 
-PREFIX				D_SM_EDIT_LISTENER
-CAPTION	リスナー設定
-STATIC1	この TCP/IP リスナーの設定を変更できます。
-S_PORT	TCP/IP リスナー: TCP %u
+PREFIX		D_SM_EDIT_LISTENER
+CAPTION		リスナー設定
+STATIC1		この TCP/IP リスナーの設定を変更できます。
+S_PORT		TCP/IP リスナー: TCP %u
+S_GROUP_PROXY		PROXY プロトコル
 R_PROXY_PROTOCOL	PROXY プロトコルヘッダー (v1 / v2 自動判別) を受け入れる
-S_BINDIP				バインド IP アドレス(&B):
-S_BINDIP_NOTE				(空欄: すべてのインターフェイス。変更するとリスナーは再起動されます。)
-STATIC2	PROXY プロトコルの変更は直ちに有効になり、既存の接続には影響しません。バインド IP アドレスを変更するとリスナーが再起動され、その接続が切断されます。
+S_PROXY_NOTE		変更は直ちに有効になります。既存の接続には影響しません。
+S_GROUP_BINDIP		バインド IP アドレス
+S_BINDIP		バインド IP アドレス(&B):
+S_BINDIP_NOTE		空欄の場合はすべてのインターフェイスにバインドします。変更するとリスナーが再起動され、その接続が切断されます。
+IDOK		&OK
+IDCANCEL		キャンセル
 
 PREFIX					D_SM_SSL
 CAPTION					暗号化と通信関係の設定

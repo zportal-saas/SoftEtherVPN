@@ -2671,30 +2671,33 @@ S_MSG_2					Bir VPN İstemcisi bu Sanal Merkeze bağlandığında kullanıcını
 B_MSG					Mesa&jı Ayarla
 
 
-PREFIX					D_SM_CREATE_LISTENER
-CAPTION					Dinleyici Oluştur
-STATIC1					VPN Sunucusunun istemcilerden gelen bağlantıları kabul etmesi için bir TCP/IP bağlantı noktası numarası ekleyebilirsiniz. \r\n\r\nEklenecek bağlantı noktası numarasını belirtin.
-STATIC2					Bağlantı noktası numarası zaten başka bir sunucu programı tarafından kullanılıyorsa, yeni dinleyicinin durumu hata olacaktır. \r\n\r\nBu durumda, aynı portu açan diğer programı durdurun.
-STATIC3					&Bağlantı Noktası Numarası:
-IDOK					&TAMAM
-IDCANCEL				İptal
-STATIC4				(TCP/IP Bağlantı Noktası)
-
-S_BINDIP				Bağlama IP Adresi(&B):
-S_BINDIP_NOTE				(Boş: tüm ağ arayüzleri)
-
-
+PREFIX		D_SM_CREATE_LISTENER
+CAPTION		Dinleyici Oluştur
+STATIC1		VPN Sunucusunun istemcilerden gelen bağlantıları kabul etmesi için bir TCP/IP bağlantı noktası numarası ekleyebilirsiniz. \r\n\r\nEklenecek bağlantı noktası numarasını belirtin.
+STATIC2		Bağlantı noktası numarası zaten başka bir sunucu programı tarafından kullanılıyorsa, yeni dinleyicinin durumu hata olacaktır. \r\n\r\nBu durumda, aynı portu açan diğer programı durdurun.
+STATIC3		&Bağlantı Noktası Numarası:
+STATIC4		(TCP/IP Bağlantı Noktası)
+S_GROUP_PROXY		PROXY Protokolü
 R_PROXY_PROTOCOL	PROXY protokol başlığını kabul et (v1 / v2 otomatik algılama)
+S_GROUP_BINDIP		Bağlama IP Adresi
+S_BINDIP		Bağlama IP Adresi(&B):
+S_BINDIP_NOTE		(Boş: tüm ağ arayüzleri)
+IDOK		&TAMAM
+IDCANCEL		İptal
 
 
-PREFIX				D_SM_EDIT_LISTENER
-CAPTION	Dinleyici Ayarları
-STATIC1	Bu TCP/IP dinleyicisinin ayarlarını değiştirebilirsiniz.
-S_PORT	TCP/IP Dinleyici: TCP %u
+PREFIX		D_SM_EDIT_LISTENER
+CAPTION		Dinleyici Ayarları
+STATIC1		Bu TCP/IP dinleyicisinin ayarlarını değiştirebilirsiniz.
+S_PORT		TCP/IP Dinleyici: TCP %u
+S_GROUP_PROXY		PROXY Protokolü
 R_PROXY_PROTOCOL	PROXY protokol başlığını kabul et (v1 / v2 otomatik algılama)
-S_BINDIP				Bağlama IP Adresi(&B):
-S_BINDIP_NOTE				(Boş: tüm ağ arayüzleri. Değişiklik dinleyiciyi yeniden başlatır.)
-STATIC2	PROXY protokolü değişikliği hemen etkili olur ve mevcut bağlantıları etkilemez. Bağlama IP adresini değiştirmek dinleyiciyi yeniden başlatır ve bağlantılarını keser.
+S_PROXY_NOTE		Değişiklik hemen geçerli olur. Mevcut bağlantılar etkilenmez.
+S_GROUP_BINDIP		Bağlama IP Adresi
+S_BINDIP		Bağlama IP Adresi(&B):
+S_BINDIP_NOTE		Boş: tüm arayüzler. Bu değişiklik dinleyiciyi yeniden başlatır ve bağlantılarını keser.
+IDOK		&TAMAM
+IDCANCEL		İptal
 
 PREFIX					D_SM_SSL
 CAPTION					Şifreleme ve Ağ Ayarları

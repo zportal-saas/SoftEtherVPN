@@ -442,6 +442,7 @@ bool SmCreateListenerDlg(HWND hWnd, SM_SERVER *p);
 UINT SmCreateListenerDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
 bool SmEditListenerDlg(HWND hWnd, SM_SERVER *p, UINT port, bool proxy_protocol, char *bind_ip);
 UINT SmEditListenerDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
+void SmEditListenerSelected(HWND hWnd, SM_SERVER *p);
 void SmSslDlg(HWND hWnd, SM_SERVER *p);
 UINT SmSslDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
 void SmSslDlgInit(HWND hWnd, SM_SSL *s);

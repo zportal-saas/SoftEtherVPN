@@ -17414,11 +17414,12 @@ UINT SmCreateListenerDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, 
 		Disable(hWnd, IDOK);
 		if (GetCapsBool(p->CapsList, "b_support_proxy_protocol") == false)
 		{
+			Hide(hWnd, S_GROUP_PROXY);
 			Hide(hWnd, R_PROXY_PROTOCOL);
 		}
 		if (GetCapsBool(p->CapsList, "b_support_listener_bind_ip") == false)
 		{
-			Hide(hWnd, S_BINDIP);
+			Hide(hWnd, S_GROUP_BINDIP);
 			Hide(hWnd, E_BINDIP);
 			Hide(hWnd, S_BINDIP_NOTE);
 		}
@@ -17511,13 +17512,20 @@ UINT SmEditListenerDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, vo
 
 		Check(hWnd, R_PROXY_PROTOCOL, s->ProxyProtocol);
 
+		if (GetCapsBool(s->p->CapsList, "b_support_proxy_protocol") == false)
+		{
+			Hide(hWnd, S_GROUP_PROXY);
+			Hide(hWnd, R_PROXY_PROTOCOL);
+			Hide(hWnd, S_PROXY_NOTE);
+		}
+
 		if (GetCapsBool(s->p->CapsList, "b_support_listener_bind_ip"))
 		{
 			SetTextA(hWnd, E_BINDIP, s->BindIp);
 		}
 		else
 		{
-			Hide(hWnd, S_BINDIP);
+			Hide(hWnd, S_GROUP_BINDIP);
 			Hide(hWnd, E_BINDIP);
 			Hide(hWnd, S_BINDIP_NOTE);
 		}
@@ -17582,6 +17590,69 @@ bool SmEditListenerDlg(HWND hWnd, SM_SERVER *p, UINT port, bool proxy_protocol, 
 	StrCpy(s.BindIp, sizeof(s.BindIp), (bind_ip == NULL ? "" : bind_ip));
 
 	return Dialog(hWnd, D_SM_EDIT_LISTENER, SmEditListenerDlgProc, &s);
+}
+
+// Edit the settings of the currently selected listener (invoked by double-clicking the listener list)
+void SmEditListenerSelected(HWND hWnd, SM_SERVER *p)
+{
+	UINT i;
+	// Validate arguments
+	if (hWnd == NULL || p == NULL)
+	{
+		return;
+	}
+
+	if (p->ServerAdminMode == false)
+	{
+		return;
+	}
+
+	if (GetCapsBool(p->CapsList, "b_support_proxy_protocol") == false &&
+		GetCapsBool(p->CapsList, "b_support_listener_bind_ip") == false)
+	{
+		return;
+	}
+
+	i = LvGetSelected(hWnd, L_LISTENER);
+	if (i != INFINITE)
+	{
+		UINT port = (UINT)LvGetParam(hWnd, L_LISTENER, i);
+		bool proxy_protocol = false;
+		char bind_ip[MAX_SIZE];
+		RPC_LISTENER_LIST t;
+
+		Zero(bind_ip, sizeof(bind_ip));
+
+		// Retrieve the current settings of the listener
+		Zero(&t, sizeof(RPC_LISTENER_LIST));
+		if (CALL(hWnd, ScEnumListener(p->Rpc, &t)))
+		{
+			UINT j;
+
+			for (j = 0;j < t.NumPort;j++)
+			{
+				if (t.Ports[j] == port)
+				{
+					if (t.ProxyProtocols != NULL)
+					{
+						proxy_protocol = t.ProxyProtocols[j];
+					}
+					if (t.BindIps != NULL && t.BindIps[j] != NULL)
+					{
+						StrCpy(bind_ip, sizeof(bind_ip), t.BindIps[j]);
+					}
+					break;
+				}
+			}
+
+			FreeRpcListenerList(&t);
+		}
+
+		if (SmEditListenerDlg(hWnd, p, port, proxy_protocol, bind_ip))
+		{
+			SmServerDlgRefresh(hWnd, p);
+		}
+	}
 }
 
 // HUB edit OK button
@@ -18307,8 +18378,6 @@ void SmServerDlgUpdate(HWND hWnd, SM_SERVER *p)
 
 	SetEnable(hWnd, B_CREATE_LISTENER, p->ServerAdminMode);
 	SetEnable(hWnd, B_DELETE_LISTENER, p->ServerAdminMode && listener_selected && two_or_more_listener);
-	SetEnable(hWnd, B_EDIT_LISTENER, p->ServerAdminMode && listener_selected &&
-		(GetCapsBool(p->CapsList, "b_support_proxy_protocol") || GetCapsBool(p->CapsList, "b_support_listener_bind_ip")));
 	SetEnable(hWnd, B_START, p->ServerAdminMode && listener_selected_disabled);
 	SetEnable(hWnd, B_STOP, p->ServerAdminMode && listener_selected_enabled);
 	SetEnable(hWnd, B_FARM, GetCapsBool(p->CapsList, "b_support_cluster") && p->ServerAdminMode && GetCapsBool(p->CapsList, "b_support_vgs_in_client") == false);
@@ -18345,14 +18414,6 @@ void SmServerDlgInit(HWND hWnd, SM_SERVER *p)
 	LvSetStyle(hWnd, L_LISTENER, LVS_EX_GRIDLINES);
 	LvInsertColumn(hWnd, L_LISTENER, 0, _UU("CM_LISTENER_COLUMN_1"), 90);
 	LvInsertColumn(hWnd, L_LISTENER, 1, _UU("CM_LISTENER_COLUMN_2"), 70);
-	if (GetCapsBool(p->CapsList, "b_support_proxy_protocol"))
-	{
-		LvInsertColumn(hWnd, L_LISTENER, 2, _UU("CM_LISTENER_COLUMN_3"), 85);
-	}
-	if (GetCapsBool(p->CapsList, "b_support_listener_bind_ip"))
-	{
-		LvInsertColumn(hWnd, L_LISTENER, 3, _UU("CM_LISTENER_COLUMN_4"), 90);
-	}
 
 	SmServerDlgRefresh(hWnd, p);
 
@@ -18540,16 +18601,9 @@ void SmServerDlgRefresh(HWND hWnd, SM_SERVER *p)
 		for (i = 0;i < t2.NumPort;i++)
 		{
 			wchar_t tmp[MAX_SIZE];
-			wchar_t bindip_tmp[MAX_SIZE];
 			wchar_t *status;
 			UINT icon;
 			UniFormat(tmp, sizeof(tmp), _UU("CM_LISTENER_TCP_PORT"), t2.Ports[i]);
-
-			Zero(bindip_tmp, sizeof(bindip_tmp));
-			if (t2.BindIps != NULL && t2.BindIps[i] != NULL && IsEmptyStr(t2.BindIps[i]) == false)
-			{
-				StrToUni(bindip_tmp, sizeof(bindip_tmp), t2.BindIps[i]);
-			}
 
 			status = _UU("CM_LISTENER_ONLINE");
 			icon = ICO_PROTOCOL;
@@ -18564,11 +18618,7 @@ void SmServerDlgRefresh(HWND hWnd, SM_SERVER *p)
 				icon = ICO_PROTOCOL_OFFLINE;
 			}
 
-			LvInsertAdd(b, icon, (void *)t2.Ports[i], 2 + (GetCapsBool(p->CapsList, "b_support_proxy_protocol") ? 1 : 0)
-				+ (GetCapsBool(p->CapsList, "b_support_listener_bind_ip") ? 1 : 0),
-				tmp, status, t2.ProxyProtocols[i] ? _UU("CM_LISTENER_PROXY_ONLINE") : _UU("CM_LISTENER_PROXY_OFFLINE"),
-				(t2.BindIps != NULL && t2.BindIps[i] != NULL && IsEmptyStr(t2.BindIps[i]) == false)
-					? bindip_tmp : L"");
+			LvInsertAdd(b, icon, (void *)t2.Ports[i], 2, tmp, status);
 		}
 		LvInsertEnd(b, hWnd, L_LISTENER);
 		FreeRpcListenerList(&t2);
@@ -18836,49 +18886,6 @@ UINT SmServerDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *pa
 			}
 			break;
 
-		case B_EDIT_LISTENER:
-			// Edit the listener settings
-			i = LvGetSelected(hWnd, L_LISTENER);
-			if (i != INFINITE)
-			{
-				UINT port = (UINT)LvGetParam(hWnd, L_LISTENER, i);
-				bool proxy_protocol = false;
-				char bind_ip[MAX_SIZE];
-
-				Zero(bind_ip, sizeof(bind_ip));
-
-				if (GetCapsBool(p->CapsList, "b_support_proxy_protocol"))
-				{
-					wchar_t *s = LvGetSelectedStr(hWnd, L_LISTENER, 2);
-					if (s != NULL)
-					{
-						proxy_protocol = (UniStrCmpi(s, _UU("CM_LISTENER_PROXY_ONLINE")) == 0);
-						Free(s);
-					}
-				}
-
-				if (GetCapsBool(p->CapsList, "b_support_listener_bind_ip"))
-				{
-					wchar_t *s = LvGetSelectedStr(hWnd, L_LISTENER, 3);
-					if (s != NULL)
-					{
-						char *a = CopyUniToStr(s);
-						if (a != NULL)
-						{
-							StrCpy(bind_ip, sizeof(bind_ip), a);
-							Free(a);
-						}
-						Free(s);
-					}
-				}
-
-				if (SmEditListenerDlg(hWnd, p, port, proxy_protocol, bind_ip))
-				{
-					SmServerDlgRefresh(hWnd, p);
-				}
-			}
-			break;
-
 		case B_START:
 			// Start
 			i = LvGetSelected(hWnd, L_LISTENER);
@@ -19107,6 +19114,11 @@ UINT SmServerDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *pa
 			{
 			case LVN_ITEMCHANGED:
 				SmServerDlgUpdate(hWnd, p);
+				break;
+
+			case NM_DBLCLK:
+				// Edit the listener settings by double-clicking
+				SmEditListenerSelected(hWnd, p);
 				break;
 			}
 			break;

@@ -2671,30 +2671,33 @@ S_MSG_2					Shows a message on the screen of a user when a VPN Client connects t
 B_MSG					Set the Messa&ge
 
 
-PREFIX					D_SM_CREATE_LISTENER
-CAPTION					Create Listener
-STATIC1					You can add a TCP/IP port number for the VPN Server to accept connections from clients. \r\n\r\nSpecify the port number to add.
-STATIC2					If the port number is already being used by another server program, the status of the new listener will be error. \r\n\r\nIn this case, stop the other program that is opening the same port.
-STATIC3					&Port Number:
-IDOK					&OK
-IDCANCEL				Cancel
-STATIC4				(TCP/IP Port)
-
-S_BINDIP				&Bind IP Address:
-S_BINDIP_NOTE				(Empty: all interfaces)
-
-
+PREFIX		D_SM_CREATE_LISTENER
+CAPTION		Create Listener
+STATIC1		You can add a TCP/IP port number for the VPN Server to accept connections from clients. \r\n\r\nSpecify the port number to add.
+STATIC2		If the port number is already being used by another server program, the status of the new listener will be error. \r\n\r\nIn this case, stop the other program that is opening the same port.
+STATIC3		&Port Number:
+STATIC4		(TCP/IP Port)
+S_GROUP_PROXY		PROXY Protocol
 R_PROXY_PROTOCOL	Accept the PROXY protocol header (v1 / v2 automatic detection)
+S_GROUP_BINDIP		Bind IP Address
+S_BINDIP		&Bind IP Address:
+S_BINDIP_NOTE		(Empty: all interfaces)
+IDOK		&OK
+IDCANCEL		Cancel
 
 
-PREFIX				D_SM_EDIT_LISTENER
-CAPTION				Listener Settings
-STATIC1				You can change the settings of this TCP/IP listener.
-S_PORT				TCP/IP Listener: TCP %u
+PREFIX		D_SM_EDIT_LISTENER
+CAPTION		Listener Settings
+STATIC1		You can change the settings of this TCP/IP listener.
+S_PORT		TCP/IP Listener: TCP %u
+S_GROUP_PROXY		PROXY Protocol
 R_PROXY_PROTOCOL	Accept the PROXY protocol header (v1 / v2 automatic detection)
-S_BINDIP				&Bind IP Address:
-S_BINDIP_NOTE				(Empty: all interfaces. Changing this restarts the listener.)
-STATIC2				The PROXY protocol change takes effect immediately. Existing connections are not affected. Changing the bind IP address restarts the listener and disconnects its connections.
+S_PROXY_NOTE		Takes effect immediately. Existing connections are not affected.
+S_GROUP_BINDIP		Bind IP Address
+S_BINDIP		&Bind IP Address:
+S_BINDIP_NOTE		Empty: all interfaces. Changing this restarts the listener and disconnects its connections.
+IDOK		&OK
+IDCANCEL		Cancel
 
 PREFIX					D_SM_SSL
 CAPTION					Encryption and Network Settings
