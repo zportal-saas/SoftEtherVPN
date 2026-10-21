@@ -4612,8 +4612,7 @@ CMD_ProxyTrustedNetworks_Empty	(비어 있음: 모든 발신지 신뢰)
 
 # ListenerBindIp 명령
 CMD_ListenerBindIp	TCP 리스너의 바인드 IP 주소 설정
-CMD_ListenerBindIp_Help	지정한 TCP 리스너가 바인드할 로컬 IPv4 주소를 설정합니다. 변경을 적용하기 위해 리스너가 재시작되며 해당 리스너의 모든 연결이 끊어집니다. 모든 인터페이스에 바인드하려면 "0.0.0.0"을 지정하십시오.
-이 명령을 실행하려면 VPN 서버 관리자 권한이 필요합니다.
+CMD_ListenerBindIp_Help	지정한 TCP 리스너가 바인드할 로컬 IPv4 주소를 설정합니다. 변경을 적용하기 위해 리스너가 재시작되며 해당 리스너의 모든 연결이 끊어집니다. 모든 인터페이스에 바인드하려면 "0.0.0.0"을 지정하십시오.\n이 명령을 실행하려면 VPN 서버 관리자 권한이 필요합니다.
 CMD_ListenerBindIp_Args	ListenerBindIp [port] /BINDIP:ip
 CMD_ListenerBindIp_[port]	바인드 IP 주소를 변경할 TCP/IP 리스너의 포트 번호를 정수로 지정합니다.
 CMD_ListenerBindIp_BINDIP	리스너가 바인드할 로컬 IPv4 주소를 지정합니다. 모든 인터페이스에 바인드하려면 "0.0.0.0"을 지정하십시오.

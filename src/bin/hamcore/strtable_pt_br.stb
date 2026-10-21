@@ -4353,8 +4353,7 @@ CMD_ProxyTrustedNetworks_Empty	(vazio: confiar em todas as origens)
 
 # Comando ListenerBindIp
 CMD_ListenerBindIp	Definir o Endereço IP de Vínculo de um Ouvinte TCP
-CMD_ListenerBindIp_Help	Define o endereço IPv4 local ao qual o ouvinte TCP especificado está vinculado. Para aplicar a alteração, o ouvinte é reiniciado e todas as conexões nesse ouvinte são desconectadas. Especifique "0.0.0.0" para vincular o ouvinte a todas as interfaces.
-Para executar este comando, é necessário ter privilégios de administrador do Servidor VPN.
+CMD_ListenerBindIp_Help	Define o endereço IPv4 local ao qual o ouvinte TCP especificado está vinculado. Para aplicar a alteração, o ouvinte é reiniciado e todas as conexões nesse ouvinte são desconectadas. Especifique "0.0.0.0" para vincular o ouvinte a todas as interfaces.\nPara executar este comando, é necessário ter privilégios de administrador do Servidor VPN.
 CMD_ListenerBindIp_Args	ListenerBindIp [port] /BINDIP:ip
 CMD_ListenerBindIp_[port]	Especifique com um número inteiro o número da porta do ouvinte TCP/IP cujo endereço IP de vínculo será alterado.
 CMD_ListenerBindIp_BINDIP	Especifique o endereço IPv4 local ao qual vincular o ouvinte. Especifique "0.0.0.0" para vincular a todas as interfaces.

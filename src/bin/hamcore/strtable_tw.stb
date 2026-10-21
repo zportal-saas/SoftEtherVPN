@@ -4649,8 +4649,7 @@ CMD_ProxyTrustedNetworks_Empty	(空: 信任所有來源)
 
 # ListenerBindIp 命令
 CMD_ListenerBindIp	設定 TCP 監聽器的繫結 IP 位址
-CMD_ListenerBindIp_Help	此命令設定指定 TCP 監聽器繫結的本機 IPv4 位址。變更生效時監聽器將被重新啟動，該監聽器上的所有連線將被中斷。指定 "0.0.0.0" 表示繫結到所有網路介面。
-要執行此命令，必須擁有 VPN 伺服器管理員權限。
+CMD_ListenerBindIp_Help	此命令設定指定 TCP 監聽器繫結的本機 IPv4 位址。變更生效時監聽器將被重新啟動，該監聽器上的所有連線將被中斷。指定 "0.0.0.0" 表示繫結到所有網路介面。\n要執行此命令，必須擁有 VPN 伺服器管理員權限。
 CMD_ListenerBindIp_Args	ListenerBindIp [port] /BINDIP:ip
 CMD_ListenerBindIp_[port]	使用一個整數，指定要變更繫結 IP 位址的 TCP/IP 監聽器埠號。
 CMD_ListenerBindIp_BINDIP	指定監聽器繫結的本機 IPv4 位址。指定 "0.0.0.0" 表示繫結到所有網路介面。

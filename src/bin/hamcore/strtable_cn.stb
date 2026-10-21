@@ -4648,8 +4648,7 @@ CMD_ProxyTrustedNetworks_Empty	(空: 信任所有来源)
 
 # ListenerBindIp 命令
 CMD_ListenerBindIp	设置 TCP 监听器的绑定 IP 地址
-CMD_ListenerBindIp_Help	此命令设置指定 TCP 监听器绑定的本地 IPv4 地址。变更生效时监听器将被重启，该监听器上的所有连接将被断开。指定 "0.0.0.0" 表示绑定到所有网络接口。
-要执行此命令，必须拥有 VPN 服务器管理员权限。
+CMD_ListenerBindIp_Help	此命令设置指定 TCP 监听器绑定的本地 IPv4 地址。变更生效时监听器将被重启，该监听器上的所有连接将被断开。指定 "0.0.0.0" 表示绑定到所有网络接口。\n要执行此命令，必须拥有 VPN 服务器管理员权限。
 CMD_ListenerBindIp_Args	ListenerBindIp [port] /BINDIP:ip
 CMD_ListenerBindIp_[port]	使用一个整数，指定要更改绑定 IP 地址的 TCP/IP 监听器端口号。
 CMD_ListenerBindIp_BINDIP	指定监听器绑定的本地 IPv4 地址。指定 "0.0.0.0" 表示绑定到所有网络接口。

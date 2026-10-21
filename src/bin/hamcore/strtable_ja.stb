@@ -4635,8 +4635,7 @@ CMD_ProxyTrustedNetworks_Empty	(空: すべての発信元を信頼)
 
 # ListenerBindIp コマンド
 CMD_ListenerBindIp	TCP リスナーのバインド IP アドレスの設定
-CMD_ListenerBindIp_Help	指定した TCP リスナーがバインドするローカル IPv4 アドレスを設定します。変更を適用するためにリスナーは再起動され、そのリスナー上のすべての接続が切断されます。すべてのインターフェイスにバインドするには "0.0.0.0" を指定してください。
-このコマンドを実行するには、VPN サーバー管理者権限が必要です。
+CMD_ListenerBindIp_Help	指定した TCP リスナーがバインドするローカル IPv4 アドレスを設定します。変更を適用するためにリスナーは再起動され、そのリスナー上のすべての接続が切断されます。すべてのインターフェイスにバインドするには "0.0.0.0" を指定してください。\nこのコマンドを実行するには、VPN サーバー管理者権限が必要です。
 CMD_ListenerBindIp_Args	ListenerBindIp [port] /BINDIP:ip
 CMD_ListenerBindIp_[port]	バインド IP アドレスを変更する TCP/IP リスナーのポート番号を整数で指定します。
 CMD_ListenerBindIp_BINDIP	リスナーがバインドするローカル IPv4 アドレスを指定します。すべてのインターフェイスにバインドするには "0.0.0.0" を指定してください。

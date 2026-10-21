@@ -4634,8 +4634,7 @@ CMD_ProxyTrustedNetworks_Empty	(kosong: percayai semua sumber)
 
 # Perintah ListenerBindIp
 CMD_ListenerBindIp	Atur Alamat IP Ikatan Listener TCP
-CMD_ListenerBindIp_Help	Mengatur alamat IPv4 lokal tempat Listener TCP yang ditentukan diikat. Untuk menerapkan perubahan, listener dimulai ulang dan semua koneksi pada listener tersebut diputus. Tentukan "0.0.0.0" untuk mengikat listener ke semua antarmuka jaringan.
-Untuk menjalankan perintah ini, Anda harus memiliki hak istimewa administrator VPN Server.
+CMD_ListenerBindIp_Help	Mengatur alamat IPv4 lokal tempat Listener TCP yang ditentukan diikat. Untuk menerapkan perubahan, listener dimulai ulang dan semua koneksi pada listener tersebut diputus. Tentukan "0.0.0.0" untuk mengikat listener ke semua antarmuka jaringan.\nUntuk menjalankan perintah ini, Anda harus memiliki hak istimewa administrator VPN Server.
 CMD_ListenerBindIp_Args	ListenerBindIp [port] /BINDIP:ip
 CMD_ListenerBindIp_[port]	Tentukan dengan bilangan bulat nomor port listener TCP/IP yang alamat IP ikatannya akan diubah.
 CMD_ListenerBindIp_BINDIP	Tentukan alamat IPv4 lokal tempat listener diikat. Tentukan "0.0.0.0" untuk mengikat ke semua antarmuka jaringan.

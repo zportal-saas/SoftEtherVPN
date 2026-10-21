@@ -4634,8 +4634,7 @@ CMD_ProxyTrustedNetworks_Empty	(boş: tüm kaynaklara güven)
 
 # ListenerBindIp komutu
 CMD_ListenerBindIp	TCP Dinleyicisinin Bağlama IP Adresini Ayarla
-CMD_ListenerBindIp_Help	Belirtilen TCP Dinleyicisinin bağlandığı yerel IPv4 adresini ayarlar. Değişikliği uygulamak için dinleyici yeniden başlatılır ve bu dinleyicideki tüm bağlantılar kesilir. Dinleyiciyi tüm arayüzlere bağlamak için "0.0.0.0" belirtin.
-Bu komutu yürütmek için VPN Sunucusu yönetici ayrıcalıklarına sahip olmanız gerekir.
+CMD_ListenerBindIp_Help	Belirtilen TCP Dinleyicisinin bağlandığı yerel IPv4 adresini ayarlar. Değişikliği uygulamak için dinleyici yeniden başlatılır ve bu dinleyicideki tüm bağlantılar kesilir. Dinleyiciyi tüm arayüzlere bağlamak için "0.0.0.0" belirtin.\nBu komutu yürütmek için VPN Sunucusu yönetici ayrıcalıklarına sahip olmanız gerekir.
 CMD_ListenerBindIp_Args	ListenerBindIp [port] /BINDIP:ip
 CMD_ListenerBindIp_[port]	Bağlama IP adresi değiştirilecek TCP/IP dinleyicisinin bağlantı noktası numarasını tamsayı olarak belirtin.
 CMD_ListenerBindIp_BINDIP	Dinleyicinin bağlanacağı yerel IPv4 adresini belirtin. Tüm arayüzlere bağlamak için "0.0.0.0" belirtin.
