@@ -31,4 +31,6 @@ jobs:
             build/vpncmd
             build/vpnclient
             build/vpnbridge
+            build/libcedar.so
+            build/libmayaqua.so
             build/hamcore.se2
