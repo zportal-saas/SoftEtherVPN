@@ -1229,6 +1229,7 @@ CM_HUB_DELETED_MSG		Virtual Hub %S удален.
 CM_LISTENER_COLUMN_1	Порт
 CM_LISTENER_COLUMN_2	Состояние
 CM_LISTENER_TCP_PORT	TCP %u
+CM_LISTENER_COLUMN_4	IP-адрес привязки
 CM_LISTENER_ONLINE		Используется
 CM_LISTENER_OFFLINE		Закрыт
 CM_LISTENER_ERROR		Ошибка
@@ -2677,7 +2678,11 @@ STATIC2					Если номер порта уже используется др�
 STATIC3					&Номер порта:
 IDOK					&OK
 IDCANCEL				Отмена
-STATIC4					(TCP/IP порт)
+STATIC4				(TCP/IP порт)
+
+S_BINDIP				IP-адрес &привязки:
+S_BINDIP_NOTE				(пусто: все интерфейсы)
+
 
 R_PROXY_PROTOCOL	Принимать заголовок протокола PROXY (v1 / v2, автоопределение)
 
@@ -2687,7 +2692,9 @@ CAPTION	Настройки прослушивателя
 STATIC1	Вы можете изменить настройки этого TCP/IP-прослушивателя.
 S_PORT	TCP/IP-прослушиватель: TCP %u
 R_PROXY_PROTOCOL	Принимать заголовок протокола PROXY (v1 / v2, автоопределение)
-STATIC2	Изменение вступает в силу немедленно. Существующие соединения не затрагиваются.
+S_BINDIP				IP-адрес &привязки:
+S_BINDIP_NOTE				(пусто: все интерфейсы. При изменении прослушиватель перезапускается.)
+STATIC2	Изменение PROXY-протокола вступает в силу немедленно и не затрагивает существующие соединения. Изменение IP-адреса привязки перезапускает прослушиватель и разрывает его соединения.
 
 PREFIX					D_SM_SSL
 CAPTION					Настройки шифрования и сети
@@ -4576,7 +4583,9 @@ CMD_ListenerCreate		Create New TCP Listener
 CMD_ListenerCreate_Help	This allows you to create a new TCP Listener on the server. By creating the TCP Listener the server starts listening for a connection from clients at the specified TCP/IP port number. \nA TCP Listener that has been created can be deleted by the ListenerDelete command. \nYou can also get a list of TCP Listeners currently registered by using the ListenerList command. \nnTo execute this command, you must have VPN Server administrator privileges.
 CMD_ListenerCreate_Args	ListenerCreate [port]
 CMD_ListenerCreate_[port]	Using an integer, specify the newly added TCP/IP listener port number. You can also use a port number that is already being used by a different program; however the VPN Server will not be able to use it until that program ends the use of that port. Specify a port number that is within the range of 1 to 65535.
-CMD_ListenerCreate_PortPrompt	Port number of newly added TCP/IP Listener: 
+CMD_ListenerCreate_PortPrompt	Номер порта нового TCP/IP-прослушивателя: 
+CMD_ListenerCreate_Prompt_BINDIP	IP-адрес привязки нового TCP/IP-прослушивателя (пусто или 0.0.0.0 = все интерфейсы): 
+CMD_ListenerCreate_BINDIP	С помощью этого параметра можно привязать новый прослушиватель к конкретному локальному IPv4-адресу этого сервера, а не ко всем интерфейсам. Если параметр не указан или указан как "0.0.0.0", прослушиватель принимает подключения на всех интерфейсах.
 
 
 # ListenerDelete command
@@ -4621,6 +4630,16 @@ CMD_ProxyTrustedNetworks_Column_1	Параметр
 CMD_ProxyTrustedNetworks_Column_2	Значение
 CMD_ProxyTrustedNetworks_Token	Доверенные сети
 CMD_ProxyTrustedNetworks_Empty	(пусто: доверять всем источникам)
+
+
+# Команда ListenerBindIp
+CMD_ListenerBindIp	Задать IP-адрес привязки TCP-прослушивателя
+CMD_ListenerBindIp_Help	Задает локальный IPv4-адрес, к которому привязывается указанный TCP-прослушиватель. Для применения изменения прослушиватель перезапускается, и все его соединения разрываются. Чтобы привязать прослушиватель ко всем интерфейсам, укажите "0.0.0.0".
+Для выполнения этой команды необходимы права администратора VPN-сервера.
+CMD_ListenerBindIp_Args	ListenerBindIp [port] /BINDIP:ip
+CMD_ListenerBindIp_[port]	Укажите целым числом номер порта TCP/IP-прослушивателя, для которого меняется IP-адрес привязки.
+CMD_ListenerBindIp_BINDIP	Укажите локальный IPv4-адрес, к которому привязывается прослушиватель. Чтобы привязать ко всем интерфейсам, укажите "0.0.0.0".
+CMD_ListenerBindIp_Prompt_BINDIP	IP-адрес привязки (0.0.0.0 = все интерфейсы): 
 
 
 # ListenerDisable command

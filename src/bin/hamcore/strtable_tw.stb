@@ -1239,6 +1239,7 @@ CM_HUB_DELETED_MSG		虛擬 HUB "%S" 被刪除。
 CM_LISTENER_COLUMN_1	埠號
 CM_LISTENER_COLUMN_2	狀態
 CM_LISTENER_TCP_PORT	TCP %u
+CM_LISTENER_COLUMN_4	繫結 IP 位址
 CM_LISTENER_ONLINE		監聽中
 CM_LISTENER_OFFLINE		停止中
 CM_LISTENER_ERROR		錯誤
@@ -2696,7 +2697,11 @@ STATIC2					如果埠號已經被其它服務端程式使用，則新監聽器�
 STATIC3					埠號(&P):
 IDOK					確定(&O)
 IDCANCEL				取消
-STATIC4					(TCP/IP 埠)
+STATIC4				(TCP/IP 埠)
+
+S_BINDIP				繫結 IP 位址(&B):
+S_BINDIP_NOTE				(留空: 所有網路介面)
+
 
 R_PROXY_PROTOCOL	接受 PROXY 通訊協定標頭 (v1 / v2 自動識別)
 
@@ -2706,7 +2711,9 @@ CAPTION	接聽程式設定
 STATIC1	您可以變更此 TCP/IP 接聽程式的設定。
 S_PORT	TCP/IP 接聽程式: TCP %u
 R_PROXY_PROTOCOL	接受 PROXY 通訊協定標頭 (v1 / v2 自動識別)
-STATIC2	變更立即生效。不會影響現有連線。
+S_BINDIP				繫結 IP 位址(&B):
+S_BINDIP_NOTE				(留空: 所有網路介面。變更後接聽程式將重新啟動。)
+STATIC2	PROXY 通訊協定設定立即生效，不影響現有連線。變更繫結 IP 位址會重新啟動接聽程式並中斷其上的連線。
 
 PREFIX					D_SM_SSL
 CAPTION					加密和網路設置
@@ -4592,6 +4599,8 @@ CMD_ListenerCreate_Help	這使您可以在伺服器上創建一個新的 TCP 監
 CMD_ListenerCreate_Args	ListenerCreate [port]
 CMD_ListenerCreate_[port]	使用一個整數，指定新添加的 TCP/IP 監聽埠號。您也可以使用一個已經被其他程式使用的埠號; 但 VPN Server 將無法使用，直到該程式結束了在埠的使用。指定一個範圍從 1 到 65535 的埠號。
 CMD_ListenerCreate_PortPrompt	新增 TCP/IP 監聽器埠號: 
+CMD_ListenerCreate_Prompt_BINDIP	新增 TCP/IP 監聽器的繫結 IP 位址 (留空或 0.0.0.0 = 所有網路介面): 
+CMD_ListenerCreate_BINDIP	使用此參數將新監聽器繫結到本伺服器的特定本機 IPv4 位址，而非所有網路介面。如未指定此參數或指定為 "0.0.0.0"，監聽器將接受所有網路介面上的連線。
 
 
 # ListenerDelete 命令
@@ -4636,6 +4645,16 @@ CMD_ProxyTrustedNetworks_Column_1	設定項目
 CMD_ProxyTrustedNetworks_Column_2	值
 CMD_ProxyTrustedNetworks_Token	信任網段
 CMD_ProxyTrustedNetworks_Empty	(空: 信任所有來源)
+
+
+# ListenerBindIp 命令
+CMD_ListenerBindIp	設定 TCP 監聽器的繫結 IP 位址
+CMD_ListenerBindIp_Help	此命令設定指定 TCP 監聽器繫結的本機 IPv4 位址。變更生效時監聽器將被重新啟動，該監聽器上的所有連線將被中斷。指定 "0.0.0.0" 表示繫結到所有網路介面。
+要執行此命令，必須擁有 VPN 伺服器管理員權限。
+CMD_ListenerBindIp_Args	ListenerBindIp [port] /BINDIP:ip
+CMD_ListenerBindIp_[port]	使用一個整數，指定要變更繫結 IP 位址的 TCP/IP 監聽器埠號。
+CMD_ListenerBindIp_BINDIP	指定監聽器繫結的本機 IPv4 位址。指定 "0.0.0.0" 表示繫結到所有網路介面。
+CMD_ListenerBindIp_Prompt_BINDIP	繫結 IP 位址 (0.0.0.0 = 所有網路介面): 
 
 
 # ListenerDisable 命令

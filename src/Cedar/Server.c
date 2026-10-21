@@ -1215,7 +1215,10 @@ void UpdateGlobalServerFlags(SERVER *s, CAPSLIST *t)
 
 	is_restricted = SiIsEnterpriseFunctionsRestrictedOnOpenSource(s->Cedar);
 
-	SetGlobalServerFlag(GSF_DISABLE_PUSH_ROUTE, is_restricted);
+	// The static routing table pushing function (DhcpPushRoutes) is always
+	// enabled in this build. The original JP/CN region restriction for this
+	// function has been removed by the maintainer of this fork.
+	SetGlobalServerFlag(GSF_DISABLE_PUSH_ROUTE, false);
 	SetGlobalServerFlag(GSF_DISABLE_RADIUS_AUTH, is_restricted);
 	SetGlobalServerFlag(GSF_DISABLE_CERT_AUTH, is_restricted);
 	SetGlobalServerFlag(GSF_DISABLE_DEEP_LOGGING, is_restricted);
@@ -1410,8 +1413,12 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 	AddCapsBool(t, "b_support_securenat", true);
 
 	// Pushing routing table function of SecureNAT Virtual DHCP Server is available
-	AddCapsBool(t, "b_suppport_push_route", !is_restricted);
+	// (always enabled in this build: the JP/CN region restriction is removed)
+	AddCapsBool(t, "b_suppport_push_route", true);
 	AddCapsBool(t, "b_suppport_push_route_config", true);
+
+	// Binding a TCP listener to a specific local IP address is available
+	AddCapsBool(t, "b_support_listener_bind_ip", true);
 
 	if (s->ServerType != SERVER_TYPE_STANDALONE)
 	{
@@ -2216,7 +2223,14 @@ bool SiEnableListener(SERVER *s, UINT port)
 	}
 
 	// Create a listener
-	e->Listener = NewListener(s->Cedar, LISTENER_TCP, e->Port);
+	if (IsEmptyStr(e->BindIp))
+	{
+		e->Listener = NewListener(s->Cedar, LISTENER_TCP, e->Port);
+	}
+	else
+	{
+		e->Listener = NewListenerBindIp(s->Cedar, LISTENER_TCP, e->Port, e->BindIp);
+	}
 	if (e->Listener == NULL)
 	{
 		// Failure
@@ -2253,6 +2267,67 @@ bool SiSetListenerProxyProtocol(SERVER *s, UINT port, bool proxy_protocol)
 	if (e->Listener != NULL)
 	{
 		e->Listener->ProxyProtocol = proxy_protocol;
+	}
+
+	return true;
+}
+
+// Set the bind IP address of a listener
+// The change takes effect by restarting the listener. All connections
+// on that listener are disconnected when the bind IP address is changed.
+bool SiSetListenerBindIp(SERVER *s, UINT port, char *bind_ip)
+{
+	SERVER_LISTENER *e;
+	// Validate arguments
+	if (s == NULL || port == 0 || bind_ip == NULL)
+	{
+		return false;
+	}
+
+	// Normalize "0.0.0.0" to the empty string (= all interfaces)
+	if (StrCmpi(bind_ip, "0.0.0.0") == 0)
+	{
+		bind_ip = "";
+	}
+
+	// Get the listener
+	e = SiGetListener(s, port);
+	if (e == NULL)
+	{
+		return false;
+	}
+
+	if (StrCmpi(e->BindIp, bind_ip) != 0)
+	{
+		bool was_enabled = e->Enabled;
+
+		StrCpy(e->BindIp, sizeof(e->BindIp), bind_ip);
+
+		// Stop the current listener
+		if (e->Listener != NULL)
+		{
+			StopListener(e->Listener);
+			ReleaseListener(e->Listener);
+			e->Listener = NULL;
+		}
+
+		if (was_enabled)
+		{
+			// Create a new listener bound to the new IP address
+			if (IsEmptyStr(e->BindIp))
+			{
+				e->Listener = NewListener(s->Cedar, LISTENER_TCP, e->Port);
+			}
+			else
+			{
+				e->Listener = NewListenerBindIp(s->Cedar, LISTENER_TCP, e->Port, e->BindIp);
+			}
+			if (e->Listener != NULL)
+			{
+				e->Listener->DisableDos = e->DisableDos;
+				e->Listener->ProxyProtocol = e->ProxyProtocol;
+			}
+		}
 	}
 
 	return true;
@@ -2338,6 +2413,10 @@ bool SiAddListenerEx(SERVER *s, UINT port, bool enabled, bool disable_dos)
 }
 bool SiAddListenerEx2(SERVER *s, UINT port, bool enabled, bool disable_dos, bool proxy_protocol)
 {
+	return SiAddListenerEx3(s, port, enabled, disable_dos, proxy_protocol, NULL);
+}
+bool SiAddListenerEx3(SERVER *s, UINT port, bool enabled, bool disable_dos, bool proxy_protocol, char *bind_ip)
+{
 	SERVER_LISTENER *e;
 	UINT i;
 	// Validate arguments
@@ -2364,10 +2443,26 @@ bool SiAddListenerEx2(SERVER *s, UINT port, bool enabled, bool disable_dos, bool
 	e->DisableDos = disable_dos;
 	e->ProxyProtocol = proxy_protocol;
 
+	if (bind_ip != NULL)
+	{
+		StrCpy(e->BindIp, sizeof(e->BindIp), bind_ip);
+	}
+	if (StrCmpi(e->BindIp, "0.0.0.0") == 0)
+	{
+		Zero(e->BindIp, sizeof(e->BindIp));
+	}
+
 	if (e->Enabled)
 	{
 		// Create a listener
-		e->Listener = NewListener(s->Cedar, LISTENER_TCP, e->Port);
+		if (IsEmptyStr(e->BindIp))
+		{
+			e->Listener = NewListener(s->Cedar, LISTENER_TCP, e->Port);
+		}
+		else
+		{
+			e->Listener = NewListenerBindIp(s->Cedar, LISTENER_TCP, e->Port, e->BindIp);
+		}
 		if (e->Listener != NULL)
 		{
 			e->Listener->DisableDos = e->DisableDos;
@@ -2989,6 +3084,7 @@ void SiWriteListenerCfg(FOLDER *f, SERVER_LISTENER *r)
 	CfgAddInt(f, "Port", r->Port);
 	CfgAddBool(f, "DisableDos", r->DisableDos);
 	CfgAddBool(f, "ProxyProtocol", r->ProxyProtocol);
+	CfgAddStr(f, "BindIp", r->BindIp);
 }
 
 // Read the listener configuration
@@ -2998,6 +3094,7 @@ void SiLoadListenerCfg(SERVER *s, FOLDER *f)
 	UINT port;
 	bool disable_dos;
 	bool proxy_protocol;
+	char bind_ip[MAX_SIZE];
 	// Validate arguments
 	if (s == NULL || f == NULL)
 	{
@@ -3008,13 +3105,15 @@ void SiLoadListenerCfg(SERVER *s, FOLDER *f)
 	port = CfgGetInt(f, "Port");
 	disable_dos = CfgGetBool(f, "DisableDos");
 	proxy_protocol = CfgGetBool(f, "ProxyProtocol");
+	Zero(bind_ip, sizeof(bind_ip));
+	CfgGetStr(f, "BindIp", bind_ip, sizeof(bind_ip));
 
 	if (port == 0)
 	{
 		return;
 	}
 
-	SiAddListenerEx2(s, port, enable, disable_dos, proxy_protocol);
+	SiAddListenerEx3(s, port, enable, disable_dos, proxy_protocol, bind_ip);
 }
 
 // Read the listener list

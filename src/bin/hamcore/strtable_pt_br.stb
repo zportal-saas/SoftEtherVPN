@@ -1228,6 +1228,7 @@ CM_HUB_DELETED_MSG	Hub Virtual %S foi excluído.
 CM_LISTENER_COLUMN_1	Número da porta
 CM_LISTENER_COLUMN_2	Status
 CM_LISTENER_TCP_PORT	TCP %u
+CM_LISTENER_COLUMN_4	Endereço IP de Vínculo
 CM_LISTENER_ONLINE	Ouvindo
 CM_LISTENER_OFFLINE	Parado
 CM_LISTENER_ERROR	Erro
@@ -2619,6 +2620,9 @@ STATIC3	&Número da porta:
 IDOK	&OK
 IDCANCEL	Cancelar
 STATIC4	(Porta TCP/IP)
+
+S_BINDIP	Endereço IP de &Vínculo:
+S_BINDIP_NOTE	(Vazio: todas as interfaces)
 R_PROXY_PROTOCOL	Aceitar o cabeçalho do protocolo PROXY (detecção automática v1 / v2)
 
 
@@ -2627,7 +2631,9 @@ CAPTION	Configurações do Ouvinte
 STATIC1	Você pode alterar as configurações deste ouvinte TCP/IP.
 S_PORT	Ouvinte TCP/IP: TCP %u
 R_PROXY_PROTOCOL	Aceitar o cabeçalho do protocolo PROXY (detecção automática v1 / v2)
-STATIC2	A alteração entra em vigor imediatamente. As conexões existentes não são afetadas.
+S_BINDIP				Endereço IP de &Vínculo:
+S_BINDIP_NOTE				(Vazio: todas as interfaces. A alteração reinicia o ouvinte.)
+STATIC2	A alteração do protocolo PROXY entra em vigor imediatamente e não afeta as conexões existentes. Alterar o endereço IP de vínculo reinicia o ouvinte e desconecta suas conexões.
 PREFIX	D_SM_SSL
 CAPTION	Encryption and Network Settings
 STATIC1	You can view or change settings related to encryption, communication and security for this VPN Server.
@@ -4296,7 +4302,9 @@ CMD_ListenerCreate	Create New TCP Listener
 CMD_ListenerCreate_Help	This allows you to create a new TCP Listener on the server. By creating the TCP Listener the server starts listening for a connection from clients at the specified TCP/IP port number. \nA TCP Listener that has been created can be deleted by the ListenerDelete command. \nYou can also get a list of TCP Listeners currently registered by using the ListenerList command. \nnTo execute this command, you must have VPN Server administrator privileges.
 CMD_ListenerCreate_Args	ListenerCreate [port]
 CMD_ListenerCreate_[port]	Using an integer, specify the newly added TCP/IP listener port number. You can also use a port number that is already being used by a different program; however the VPN Server will not be able to use it until that program ends the use of that port. Specify a port number that is within the range of 1 to 65535.
-CMD_ListenerCreate_PortPrompt	Port number of newly added TCP/IP Listener: 
+CMD_ListenerCreate_PortPrompt	Número da porta do novo ouvinte TCP/IP: 
+CMD_ListenerCreate_Prompt_BINDIP	Endereço IP de vínculo do novo ouvinte TCP/IP (vazio ou 0.0.0.0 = todas as interfaces): 
+CMD_ListenerCreate_BINDIP	Use este parâmetro para vincular o novo ouvinte a um endereço IPv4 local específico deste servidor, em vez de todas as interfaces. Se este parâmetro não for especificado, ou se "0.0.0.0" for especificado, o ouvinte aceitará conexões em todas as interfaces.
 
 
 # ListenerDelete command
@@ -4341,6 +4349,16 @@ CMD_ProxyTrustedNetworks_Column_1	Item de Configuração
 CMD_ProxyTrustedNetworks_Column_2	Valor
 CMD_ProxyTrustedNetworks_Token	Redes confiáveis
 CMD_ProxyTrustedNetworks_Empty	(vazio: confiar em todas as origens)
+
+
+# Comando ListenerBindIp
+CMD_ListenerBindIp	Definir o Endereço IP de Vínculo de um Ouvinte TCP
+CMD_ListenerBindIp_Help	Define o endereço IPv4 local ao qual o ouvinte TCP especificado está vinculado. Para aplicar a alteração, o ouvinte é reiniciado e todas as conexões nesse ouvinte são desconectadas. Especifique "0.0.0.0" para vincular o ouvinte a todas as interfaces.
+Para executar este comando, é necessário ter privilégios de administrador do Servidor VPN.
+CMD_ListenerBindIp_Args	ListenerBindIp [port] /BINDIP:ip
+CMD_ListenerBindIp_[port]	Especifique com um número inteiro o número da porta do ouvinte TCP/IP cujo endereço IP de vínculo será alterado.
+CMD_ListenerBindIp_BINDIP	Especifique o endereço IPv4 local ao qual vincular o ouvinte. Especifique "0.0.0.0" para vincular a todas as interfaces.
+CMD_ListenerBindIp_Prompt_BINDIP	Endereço IP de vínculo (0.0.0.0 = todas as interfaces): 
 
 
 # ListenerDisable command

@@ -128,6 +128,7 @@ typedef struct SM_EDIT_LISTENER
 	SM_SERVER *p;				// P
 	UINT Port;					// Port number
 	bool ProxyProtocol;			// PROXY protocol state
+	char BindIp[MAX_SIZE];		// Bind IP address (empty = all interfaces)
 } SM_EDIT_LISTENER;
 
 // Save the certificate
@@ -439,7 +440,7 @@ void SmEditHubUpdate(HWND hWnd, SM_EDIT_HUB *s);
 void SmEditHubOnOk(HWND hWnd, SM_EDIT_HUB *s);
 bool SmCreateListenerDlg(HWND hWnd, SM_SERVER *p);
 UINT SmCreateListenerDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
-bool SmEditListenerDlg(HWND hWnd, SM_SERVER *p, UINT port, bool proxy_protocol);
+bool SmEditListenerDlg(HWND hWnd, SM_SERVER *p, UINT port, bool proxy_protocol, char *bind_ip);
 UINT SmEditListenerDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
 void SmSslDlg(HWND hWnd, SM_SERVER *p);
 UINT SmSslDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);

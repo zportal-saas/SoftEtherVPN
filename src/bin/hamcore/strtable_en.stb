@@ -1229,6 +1229,7 @@ CM_HUB_DELETED_MSG		Virtual Hub %S has been deleted.
 CM_LISTENER_COLUMN_1	Port Number
 CM_LISTENER_COLUMN_2	Status
 CM_LISTENER_TCP_PORT	TCP %u
+CM_LISTENER_COLUMN_4	Bind IP Address
 CM_LISTENER_ONLINE		Listening
 CM_LISTENER_OFFLINE		Stopped
 CM_LISTENER_ERROR		Error
@@ -2677,17 +2678,23 @@ STATIC2					If the port number is already being used by another server program, 
 STATIC3					&Port Number:
 IDOK					&OK
 IDCANCEL				Cancel
-STATIC4					(TCP/IP Port)
+STATIC4				(TCP/IP Port)
+
+S_BINDIP				&Bind IP Address:
+S_BINDIP_NOTE				(Empty: all interfaces)
+
 
 R_PROXY_PROTOCOL	Accept the PROXY protocol header (v1 / v2 automatic detection)
 
 
 PREFIX				D_SM_EDIT_LISTENER
-CAPTION	Listener Settings
-STATIC1	You can change the settings of this TCP/IP listener.
-S_PORT	TCP/IP Listener: TCP %u
+CAPTION				Listener Settings
+STATIC1				You can change the settings of this TCP/IP listener.
+S_PORT				TCP/IP Listener: TCP %u
 R_PROXY_PROTOCOL	Accept the PROXY protocol header (v1 / v2 automatic detection)
-STATIC2	The change takes effect immediately. Existing connections are not affected.
+S_BINDIP				&Bind IP Address:
+S_BINDIP_NOTE				(Empty: all interfaces. Changing this restarts the listener.)
+STATIC2				The PROXY protocol change takes effect immediately. Existing connections are not affected. Changing the bind IP address restarts the listener and disconnects its connections.
 
 PREFIX					D_SM_SSL
 CAPTION					Encryption and Network Settings
@@ -4577,6 +4584,8 @@ CMD_ListenerCreate_Help	This allows you to create a new TCP Listener on the serv
 CMD_ListenerCreate_Args	ListenerCreate [port]
 CMD_ListenerCreate_[port]	Using an integer, specify the newly added TCP/IP listener port number. You can also use a port number that is already being used by a different program; however the VPN Server will not be able to use it until that program ends the use of that port. Specify a port number that is within the range of 1 to 65535.
 CMD_ListenerCreate_PortPrompt	Port number of newly added TCP/IP Listener: 
+CMD_ListenerCreate_Prompt_BINDIP	Bind IP address of the newly added TCP/IP Listener (empty or 0.0.0.0 = all interfaces): 
+CMD_ListenerCreate_BINDIP	Use this parameter to bind the new listener to a specific local IPv4 address of this server instead of all interfaces. If this parameter is not specified, or "0.0.0.0" is specified, the listener accepts connections on all interfaces.
 
 
 # ListenerDelete command
@@ -4621,6 +4630,15 @@ CMD_ProxyTrustedNetworks_Column_1	Setting Item
 CMD_ProxyTrustedNetworks_Column_2	Value
 CMD_ProxyTrustedNetworks_Token	Trusted networks
 CMD_ProxyTrustedNetworks_Empty	(empty: trust all sources)
+
+
+# ListenerBindIp command
+CMD_ListenerBindIp	Set the Bind IP Address of a TCP Listener
+CMD_ListenerBindIp_Help	This sets the local IPv4 address to which the specified TCP Listener is bound. To apply the change, the listener is restarted and all connections on that listener are disconnected. Specify "0.0.0.0" to bind the listener to all interfaces. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_ListenerBindIp_Args	ListenerBindIp [port] /BINDIP:ip
+CMD_ListenerBindIp_[port]	Using an integer, specify the port number of the TCP/IP listener of which to change the bind IP address.
+CMD_ListenerBindIp_BINDIP	Specify the local IPv4 address to bind the listener to. Specify "0.0.0.0" to bind the listener to all interfaces.
+CMD_ListenerBindIp_Prompt_BINDIP	Bind IP address (0.0.0.0 = all interfaces): 
 
 
 # ListenerDisable command

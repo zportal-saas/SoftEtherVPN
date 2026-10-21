@@ -1213,6 +1213,7 @@ CM_HUB_DELETED_MSG 가상 HUB %S를 제거했습니다.
 CM_LISTENER_COLUMN_1 포트 번호
 CM_LISTENER_COLUMN_2 상태
 CM_LISTENER_TCP_PORT TCP %u
+CM_LISTENER_COLUMN_4 바인드 IP 주소
 CM_LISTENER_ONLINE 작동 중
 CM_LISTENER_OFFLINE 정지
 CM_LISTENER_ERROR 오류 발생
@@ -2660,6 +2661,9 @@ IDOK & OK
 IDCANCEL 취소
 STATIC4 (TCP/IP 포트)
 
+S_BINDIP 바인드 IP 주소(&B):
+S_BINDIP_NOTE (비어 있음: 모든 네트워크 인터페이스)
+
 R_PROXY_PROTOCOL	PROXY 프로토콜 헤더 (v1 / v2 자동 감지) 수락
 
 
@@ -2668,7 +2672,9 @@ CAPTION	리스너 설정
 STATIC1	이 TCP/IP 리스너의 설정을 변경할 수 있습니다.
 S_PORT	TCP/IP 리스너: TCP %u
 R_PROXY_PROTOCOL	PROXY 프로토콜 헤더 (v1 / v2 자동 감지) 수락
-STATIC2	변경 사항은 즉시 적용됩니다. 기존 연결에는 영향을 주지 않습니다.
+S_BINDIP				바인드 IP 주소(&B):
+S_BINDIP_NOTE				(비어 있음: 모든 인터페이스. 변경 시 리스너가 재시작됩니다.)
+STATIC2	PROXY 프로토콜 변경은 즉시 적용되며 기존 연결에는 영향을 주지 않습니다. 바인드 IP 주소를 변경하면 리스너가 재시작되고 해당 연결이 끊어집니다.
 
 PREFIX D_SM_SSL
 CAPTION 암호화 및 통신 관계 설정
@@ -4555,7 +4561,9 @@ CMD_ListenerCreate TCP 리스너 추가
 CMD_ListenerCreate_Help 서버에 새로운 TCP 리스너를 추가합니다. TCP 리스너를 추가하면 서버는 지정된 TCP/IP 포트 번호에서 클라이언트의 연결 대기를 시작합니다. \n 번 추가 한 TCP 리스너는 ListenerDelete 명령으로 제거 할 수 있습니다. \n 또한, 현재 등록되어있는 TCP 리스너 목록은 ListenerList 명령에서 얻을 수 있습니다. \n이 명령을 실행하려면 VPN Server 관리자 권한이 있어야합니다.
 CMD_ListenerCreate_Args ListenerCreate [port]
 CMD_ListenerCreate_[port] 새로 추가하는 TCP/IP 리스너의 포트 번호를 정수로 지정합니다. 이미 다른 프로그램이 사용하는 포트 번호를 사용할 수 있지만 그 프로그램이 포트의 사용을 종료 할 때까지 VPN Server는 해당 포트를 사용할 수 없습니다. 포트 번호는 1 이상 65535 이하로 지정하십시오.
-CMD_ListenerCreate_PortPrompt 새로 추가하는 TCP/IP 리스너 포트 번호:
+CMD_ListenerCreate_PortPrompt 새로 추가하는 TCP/IP 리스너 포트 번호: 
+CMD_ListenerCreate_Prompt_BINDIP	새로 추가하는 TCP/IP 리스너의 바인드 IP 주소 (비어 있음 또는 0.0.0.0 = 모든 네트워크 인터페이스): 
+CMD_ListenerCreate_BINDIP	이 매개변수를 사용하면 새 리스너를 모든 인터페이스가 아닌 이 서버의 특정 로컬 IPv4 주소에 바인드합니다. 이 매개변수를 지정하지 않거나 "0.0.0.0"을 지정하면 모든 인터페이스에서 연결을 수락합니다.
 
 
 # ListenerDelete 명령
@@ -4600,6 +4608,16 @@ CMD_ProxyTrustedNetworks_Column_1	설정 항목
 CMD_ProxyTrustedNetworks_Column_2	값
 CMD_ProxyTrustedNetworks_Token	신뢰 네트워크
 CMD_ProxyTrustedNetworks_Empty	(비어 있음: 모든 발신지 신뢰)
+
+
+# ListenerBindIp 명령
+CMD_ListenerBindIp	TCP 리스너의 바인드 IP 주소 설정
+CMD_ListenerBindIp_Help	지정한 TCP 리스너가 바인드할 로컬 IPv4 주소를 설정합니다. 변경을 적용하기 위해 리스너가 재시작되며 해당 리스너의 모든 연결이 끊어집니다. 모든 인터페이스에 바인드하려면 "0.0.0.0"을 지정하십시오.
+이 명령을 실행하려면 VPN 서버 관리자 권한이 필요합니다.
+CMD_ListenerBindIp_Args	ListenerBindIp [port] /BINDIP:ip
+CMD_ListenerBindIp_[port]	바인드 IP 주소를 변경할 TCP/IP 리스너의 포트 번호를 정수로 지정합니다.
+CMD_ListenerBindIp_BINDIP	리스너가 바인드할 로컬 IPv4 주소를 지정합니다. 모든 인터페이스에 바인드하려면 "0.0.0.0"을 지정하십시오.
+CMD_ListenerBindIp_Prompt_BINDIP	바인드 IP 주소 (0.0.0.0 = 모든 인터페이스): 
 
 
 # ListenerDisable 명령

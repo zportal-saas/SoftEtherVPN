@@ -1152,6 +1152,11 @@
 #define E_PP_NETWORKS                   1526
 #define S_PP_INFO                       1527
 #define S_PP_TITLE                      1528
+
+// Listener bind IP related controls
+#define E_BINDIP                        1529
+#define S_BINDIP                        1530
+#define S_BINDIP_NOTE                   1531
 #define ID_Menu40011                    40011
 #define CMD_CONNECT                     40020
 #define CMD_STATUS                      40021

@@ -53,6 +53,7 @@ struct LISTENER
 	LISTENER *ShadowListener;		// Reference to managing shadow IPv6 listener
 	bool DisableDos;				// Disable the DoS attack detection
 	volatile bool ProxyProtocol;	// Accept the PROXY protocol header (v1/v2) on this listener
+	char BindIp[MAX_SIZE];			// Local IPv4 address to bind this listener to (empty = all interfaces)
 	volatile UINT *NatTGlobalUdpPort;	// NAT-T global UDP port number
 	UCHAR RandPortId;				// NAT-T UDP random port ID
 	bool EnableConditionalAccept;	// The flag of whether to enable the Conditional Accept
@@ -93,6 +94,7 @@ LISTENER *NewListenerEx4(CEDAR *cedar, UINT proto, UINT port, THREAD_PROC *proc,
 						 volatile UINT *natt_global_udp_port, UCHAR rand_port_id);
 LISTENER *NewListenerEx5(CEDAR *cedar, UINT proto, UINT port, THREAD_PROC *proc, void *thread_param, bool local_only, bool shadow_ipv6,
 						 volatile UINT *natt_global_udp_port, UCHAR rand_port_id, bool enable_ca);
+LISTENER *NewListenerBindIp(CEDAR *cedar, UINT proto, UINT port, char *bind_ip);
 void ReleaseListener(LISTENER *r);
 void CleanupListener(LISTENER *r);
 void ListenerThread(THREAD *thread, void *param);

@@ -1236,6 +1236,7 @@ CM_HUB_DELETED_MSG			虚拟 HUB "%S" 被删除。
 CM_LISTENER_COLUMN_1		端口号
 CM_LISTENER_COLUMN_2		状态
 CM_LISTENER_TCP_PORT		TCP %u
+CM_LISTENER_COLUMN_4		绑定 IP 地址
 CM_LISTENER_ONLINE			监听中
 CM_LISTENER_OFFLINE			停止中
 CM_LISTENER_ERROR			错误
@@ -2694,7 +2695,11 @@ STATIC2						如果端口号已经被其它服务端程序使用，则新监听�
 STATIC3						端口号(&P):
 IDOK						确定(&O)
 IDCANCEL					取消
-STATIC4						(TCP/IP 端口)
+STATIC4				(TCP/IP 端口)
+
+S_BINDIP				绑定 IP 地址(&B):
+S_BINDIP_NOTE				(留空: 所有网络接口)
+
 
 R_PROXY_PROTOCOL	接受 PROXY 协议头 (v1 / v2 自动识别)
 
@@ -2704,7 +2709,9 @@ CAPTION	监听器设置
 STATIC1	您可以更改此 TCP/IP 监听器的设置。
 S_PORT	TCP/IP 监听器: TCP %u
 R_PROXY_PROTOCOL	接受 PROXY 协议头 (v1 / v2 自动识别)
-STATIC2	更改立即生效。不会影响现有连接。
+S_BINDIP				绑定 IP 地址(&B):
+S_BINDIP_NOTE				(留空: 所有网络接口。更改后监听器将重启。)
+STATIC2	PROXY 协议设置立即生效，不影响现有连接。更改绑定 IP 地址会重启监听器并断开其上的连接。
 
 PREFIX						D_SM_SSL
 CAPTION						加密和网络设置
@@ -4591,6 +4598,8 @@ CMD_ListenerCreate_Help			这使您可以在服务器上创建一个新的 TCP �
 CMD_ListenerCreate_Args			ListenerCreate [port]
 CMD_ListenerCreate_[port]		使用一个整数，指定新添加的 TCP/IP 监听端口号。您也可以使用一个已经被其他程序使用的端口号; 但 VPN Server 将无法使用，直到该程序结束了在端口的使用。指定一个范围从 1 到 65535 的端口号。
 CMD_ListenerCreate_PortPrompt	新增 TCP/IP 监听器端口号: 
+CMD_ListenerCreate_Prompt_BINDIP	新增 TCP/IP 监听器的绑定 IP 地址 (留空或 0.0.0.0 = 所有网络接口): 
+CMD_ListenerCreate_BINDIP	使用此参数将新监听器绑定到本服务器的特定本地 IPv4 地址，而非所有网络接口。如未指定此参数或指定为 "0.0.0.0"，监听器将接受所有网络接口上的连接。
 
 
 # ListenerDelete 命令
@@ -4635,6 +4644,16 @@ CMD_ProxyTrustedNetworks_Column_1	设置项目
 CMD_ProxyTrustedNetworks_Column_2	值
 CMD_ProxyTrustedNetworks_Token	可信网段
 CMD_ProxyTrustedNetworks_Empty	(空: 信任所有来源)
+
+
+# ListenerBindIp 命令
+CMD_ListenerBindIp	设置 TCP 监听器的绑定 IP 地址
+CMD_ListenerBindIp_Help	此命令设置指定 TCP 监听器绑定的本地 IPv4 地址。变更生效时监听器将被重启，该监听器上的所有连接将被断开。指定 "0.0.0.0" 表示绑定到所有网络接口。
+要执行此命令，必须拥有 VPN 服务器管理员权限。
+CMD_ListenerBindIp_Args	ListenerBindIp [port] /BINDIP:ip
+CMD_ListenerBindIp_[port]	使用一个整数，指定要更改绑定 IP 地址的 TCP/IP 监听器端口号。
+CMD_ListenerBindIp_BINDIP	指定监听器绑定的本地 IPv4 地址。指定 "0.0.0.0" 表示绑定到所有网络接口。
+CMD_ListenerBindIp_Prompt_BINDIP	绑定 IP 地址 (0.0.0.0 = 所有网络接口): 
 
 
 # ListenerDisable 命令

@@ -9982,6 +9982,7 @@ UINT StEnumListener(ADMIN *a, RPC_LISTENER_LIST *t)
 		t->Enables = ZeroMalloc(sizeof(bool) * t->NumPort);
 		t->Errors = ZeroMalloc(sizeof(bool) * t->NumPort);
 		t->ProxyProtocols = ZeroMalloc(sizeof(bool) * t->NumPort);
+		t->BindIps = ZeroMalloc(sizeof(char *) * t->NumPort);
 
 		for (i = 0;i < t->NumPort;i++)
 		{
@@ -9990,6 +9991,7 @@ UINT StEnumListener(ADMIN *a, RPC_LISTENER_LIST *t)
 			t->Ports[i] = o->Port;
 			t->Enables[i] = o->Enabled;
 			t->ProxyProtocols[i] = o->ProxyProtocol;
+			t->BindIps[i] = CopyStr(o->BindIp);
 			if (t->Enables[i])
 			{
 				if (o->Listener->Status == LISTENER_STATUS_TRYING)
@@ -10015,11 +10017,31 @@ UINT StCreateListener(ADMIN *a, RPC_LISTENER *t)
 		return ERR_INVALID_PARAMETER;
 	}
 
+	// Validate the bind IP address if specified
+	if (IsEmptyStr(t->BindIp) == false)
+	{
+		IP ip;
+
+		Zero(&ip, sizeof(ip));
+
+		if (StrCmpi(t->BindIp, "0.0.0.0") == 0)
+		{
+			Zero(t->BindIp, sizeof(t->BindIp));
+		}
+		else
+		{
+			if (StrToIP(&ip, t->BindIp) == false || IsIP4(&ip) == false || IsZeroIP(&ip))
+			{
+				return ERR_INVALID_PARAMETER;
+			}
+		}
+	}
+
 	SERVER_ADMIN_ONLY;
 
 	LockList(a->Server->ServerListenerList);
 	{
-		if (SiAddListenerEx2(a->Server, t->Port, t->Enable, false, t->ProxyProtocol) == false)
+		if (SiAddListenerEx3(a->Server, t->Port, t->Enable, false, t->ProxyProtocol, t->BindIp) == false)
 		{
 			ret = ERR_LISTENER_ALREADY_EXISTS;
 		}
@@ -10037,7 +10059,7 @@ UINT StCreateListener(ADMIN *a, RPC_LISTENER *t)
 	return ret;
 }
 
-// Set the PROXY protocol state of a listener
+// Set the PROXY protocol state and the bind IP address of a listener
 UINT StSetListener(ADMIN *a, RPC_LISTENER *t)
 {
 	UINT ret = ERR_NO_ERROR;
@@ -10049,6 +10071,26 @@ UINT StSetListener(ADMIN *a, RPC_LISTENER *t)
 		return ERR_INVALID_PARAMETER;
 	}
 
+	// Validate the bind IP address if it is to be applied
+	if (t->ApplyBindIp && IsEmptyStr(t->BindIp) == false)
+	{
+		IP ip;
+
+		Zero(&ip, sizeof(ip));
+
+		if (StrCmpi(t->BindIp, "0.0.0.0") == 0)
+		{
+			Zero(t->BindIp, sizeof(t->BindIp));
+		}
+		else
+		{
+			if (StrToIP(&ip, t->BindIp) == false || IsIP4(&ip) == false || IsZeroIP(&ip))
+			{
+				return ERR_INVALID_PARAMETER;
+			}
+		}
+	}
+
 	LockList(a->Server->ServerListenerList);
 	{
 		if (SiSetListenerProxyProtocol(a->Server, t->Port, t->ProxyProtocol) == false)
@@ -10057,6 +10099,12 @@ UINT StSetListener(ADMIN *a, RPC_LISTENER *t)
 		}
 		else
 		{
+			if (t->ApplyBindIp)
+			{
+				// Changing the bind IP address restarts the listener
+				SiSetListenerBindIp(a->Server, t->Port, t->BindIp);
+			}
+
 			ALog(a, NULL, "LA_SET_LISTENER_PROXY_PROTOCOL", t->Port, t->ProxyProtocol);
 
 			IncrementServerConfigRevision(a->Server);
@@ -12482,6 +12530,8 @@ void InRpcListener(RPC_LISTENER *t, PACK *p)
 	t->Port = PackGetInt(p, "Port");
 	t->Enable = PackGetBool(p, "Enable");
 	t->ProxyProtocol = PackGetBool(p, "ProxyProtocol");
+	t->ApplyBindIp = PackGetBool(p, "ApplyBindIp");
+	PackGetStr(p, "BindIp", t->BindIp, sizeof(t->BindIp));
 }
 void OutRpcListener(PACK *p, RPC_LISTENER *t)
 {
@@ -12494,6 +12544,8 @@ void OutRpcListener(PACK *p, RPC_LISTENER *t)
 	PackAddInt(p, "Port", t->Port);
 	PackAddBool(p, "Enable", t->Enable);
 	PackAddBool(p, "ProxyProtocol", t->ProxyProtocol);
+	PackAddBool(p, "ApplyBindIp", t->ApplyBindIp);
+	PackAddStr(p, "BindIp", t->BindIp);
 }
 
 // RPC_LISTENER_LIST
@@ -12512,12 +12564,17 @@ void InRpcListenerList(RPC_LISTENER_LIST *t, PACK *p)
 	t->Enables = ZeroMalloc(sizeof(UINT) * t->NumPort);
 	t->Errors = ZeroMalloc(sizeof(UINT) * t->NumPort);
 	t->ProxyProtocols = ZeroMalloc(sizeof(bool) * t->NumPort);
+	t->BindIps = ZeroMalloc(sizeof(char *) * t->NumPort);
 	for (i = 0;i < t->NumPort;i++)
 	{
+		char tmp[MAX_SIZE];
 		t->Ports[i] = PackGetIntEx(p, "Ports", i);
 		t->Enables[i] = PackGetBoolEx(p, "Enables", i);
 		t->Errors[i] = PackGetBoolEx(p, "Errors", i);
 		t->ProxyProtocols[i] = PackGetBoolEx(p, "ProxyProtocols", i);
+		Zero(tmp, sizeof(tmp));
+		PackGetStrEx(p, "BindIps", tmp, sizeof(tmp), i);
+		t->BindIps[i] = CopyStr(tmp);
 	}
 }
 void OutRpcListenerList(PACK *p, RPC_LISTENER_LIST *t)
@@ -12536,11 +12593,13 @@ void OutRpcListenerList(PACK *p, RPC_LISTENER_LIST *t)
 		PackAddBoolEx(p, "Enables", t->Enables[i], i, t->NumPort);
 		PackAddBoolEx(p, "Errors", t->Errors[i], i, t->NumPort);
 		PackAddBoolEx(p, "ProxyProtocols", t->ProxyProtocols[i], i, t->NumPort);
+		PackAddStrEx(p, "BindIps", t->BindIps[i] == NULL ? "" : t->BindIps[i], i, t->NumPort);
 	}
 	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcListenerList(RPC_LISTENER_LIST *t)
 {
+	UINT i;
 	// Validate arguments
 	if (t == NULL)
 	{
@@ -12551,6 +12610,14 @@ void FreeRpcListenerList(RPC_LISTENER_LIST *t)
 	Free(t->Enables);
 	Free(t->Errors);
 	Free(t->ProxyProtocols);
+	if (t->BindIps != NULL)
+	{
+		for (i = 0;i < t->NumPort;i++)
+		{
+			Free(t->BindIps[i]);
+		}
+		Free(t->BindIps);
+	}
 }
 
 // PROXY_PROTOCOL_SETTING

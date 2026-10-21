@@ -1229,6 +1229,7 @@ CM_HUB_DELETED_MSG		Virtual Hub %S telah dihapus.
 CM_LISTENER_COLUMN_1	Nomor Port
 CM_LISTENER_COLUMN_2	Status
 CM_LISTENER_TCP_PORT	TCP %u
+CM_LISTENER_COLUMN_4	Alamat IP Ikatan
 CM_LISTENER_ONLINE		Mendengarkan
 CM_LISTENER_OFFLINE		Berhenti
 CM_LISTENER_ERROR		Gagal
@@ -2677,7 +2678,11 @@ STATIC2					Jika nomor port sudah digunakan oleh program server lain, status pen
 STATIC3					Nomor &Port:
 IDOK					&OK
 IDCANCEL				Batal
-STATIC4					(Port TCP/IP)
+STATIC4				(Port TCP/IP)
+
+S_BINDIP				Alamat IP &Ikatan:
+S_BINDIP_NOTE				(Kosong: semua antarmuka jaringan)
+
 
 R_PROXY_PROTOCOL	Terima header protokol PROXY (deteksi otomatis v1 / v2)
 
@@ -2687,7 +2692,9 @@ CAPTION	Pengaturan Listener
 STATIC1	Anda dapat mengubah pengaturan listener TCP/IP ini.
 S_PORT	Listener TCP/IP: TCP %u
 R_PROXY_PROTOCOL	Terima header protokol PROXY (deteksi otomatis v1 / v2)
-STATIC2	Perubahan berlaku segera. Koneksi yang ada tidak terpengaruh.
+S_BINDIP				Alamat IP &Ikatan:
+S_BINDIP_NOTE				(Kosong: semua antarmuka jaringan. Perubahan akan memulai ulang listener.)
+STATIC2	Perubahan protokol PROXY berlaku segera dan tidak memengaruhi koneksi yang ada. Mengubah alamat IP ikatan akan memulai ulang listener dan memutus koneksinya.
 
 PREFIX					D_SM_SSL
 CAPTION					Pengaturan Enkripsi dan Jaringan
@@ -4577,6 +4584,8 @@ CMD_ListenerCreate_Help	Ini memungkinkan Anda untuk membuat Listener TCP baru di
 CMD_ListenerCreate_Args	ListenerCreate [port]
 CMD_ListenerCreate_[port]	Dengan menggunakan angka, tentukan nomor port listener TCP/IP yang baru ditambahkan. Anda juga dapat menggunakan nomor port yang sudah digunakan oleh program lain; namun VPN Server tidak akan dapat menggunakannya hingga program tersebut selesai menggunakan port itu. Tentukan nomor port yang berada dalam rentang 1 hingga 65535.
 CMD_ListenerCreate_PortPrompt	Nomor port Listener TCP/IP yang baru ditambahkan: 
+CMD_ListenerCreate_Prompt_BINDIP	Alamat IP ikatan Listener TCP/IP yang baru ditambahkan (kosong atau 0.0.0.0 = semua antarmuka jaringan): 
+CMD_ListenerCreate_BINDIP	Gunakan parameter ini untuk mengikat listener baru ke alamat IPv4 lokal tertentu dari server ini, bukan ke semua antarmuka. Jika parameter ini tidak ditentukan, atau "0.0.0.0" ditentukan, listener akan menerima koneksi di semua antarmuka.
 
 
 # ListenerDelete command
@@ -4621,6 +4630,16 @@ CMD_ProxyTrustedNetworks_Column_1	Item Pengaturan
 CMD_ProxyTrustedNetworks_Column_2	Nilai
 CMD_ProxyTrustedNetworks_Token	Jaringan tepercaya
 CMD_ProxyTrustedNetworks_Empty	(kosong: percayai semua sumber)
+
+
+# Perintah ListenerBindIp
+CMD_ListenerBindIp	Atur Alamat IP Ikatan Listener TCP
+CMD_ListenerBindIp_Help	Mengatur alamat IPv4 lokal tempat Listener TCP yang ditentukan diikat. Untuk menerapkan perubahan, listener dimulai ulang dan semua koneksi pada listener tersebut diputus. Tentukan "0.0.0.0" untuk mengikat listener ke semua antarmuka jaringan.
+Untuk menjalankan perintah ini, Anda harus memiliki hak istimewa administrator VPN Server.
+CMD_ListenerBindIp_Args	ListenerBindIp [port] /BINDIP:ip
+CMD_ListenerBindIp_[port]	Tentukan dengan bilangan bulat nomor port listener TCP/IP yang alamat IP ikatannya akan diubah.
+CMD_ListenerBindIp_BINDIP	Tentukan alamat IPv4 lokal tempat listener diikat. Tentukan "0.0.0.0" untuk mengikat ke semua antarmuka jaringan.
+CMD_ListenerBindIp_Prompt_BINDIP	Alamat IP ikatan (0.0.0.0 = semua antarmuka jaringan): 
 
 
 # ListenerDisable command

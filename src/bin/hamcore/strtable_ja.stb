@@ -1231,6 +1231,7 @@ CM_HUB_DELETED_MSG		仮想 HUB %S を削除しました。
 CM_LISTENER_COLUMN_1	ポート番号
 CM_LISTENER_COLUMN_2	状態
 CM_LISTENER_TCP_PORT	TCP %u
+CM_LISTENER_COLUMN_4	バインド IP アドレス
 CM_LISTENER_ONLINE		動作中
 CM_LISTENER_OFFLINE		停止中
 CM_LISTENER_ERROR		エラー発生
@@ -2680,7 +2681,11 @@ STATIC2					ポート番号がすでに別のサーバー プログラムによ�
 STATIC3					ポート番号(&P):
 IDOK					&OK
 IDCANCEL				キャンセル
-STATIC4					(TCP/IP ポート)
+STATIC4				(TCP/IP ポート)
+
+S_BINDIP				バインド IP アドレス(&B):
+S_BINDIP_NOTE				(空欄: すべてのインターフェイス)
+
 
 R_PROXY_PROTOCOL	PROXY プロトコルヘッダー (v1 / v2 自動判別) を受け入れる
 
@@ -2690,7 +2695,9 @@ CAPTION	リスナー設定
 STATIC1	この TCP/IP リスナーの設定を変更できます。
 S_PORT	TCP/IP リスナー: TCP %u
 R_PROXY_PROTOCOL	PROXY プロトコルヘッダー (v1 / v2 自動判別) を受け入れる
-STATIC2	変更は直ちに有効になります。既存の接続には影響しません。
+S_BINDIP				バインド IP アドレス(&B):
+S_BINDIP_NOTE				(空欄: すべてのインターフェイス。変更するとリスナーは再起動されます。)
+STATIC2	PROXY プロトコルの変更は直ちに有効になり、既存の接続には影響しません。バインド IP アドレスを変更するとリスナーが再起動され、その接続が切断されます。
 
 PREFIX					D_SM_SSL
 CAPTION					暗号化と通信関係の設定
@@ -4578,6 +4585,8 @@ CMD_ListenerCreate_Help	サーバーに新しい TCP リスナーを追加しま
 CMD_ListenerCreate_Args	ListenerCreate [port]
 CMD_ListenerCreate_[port]	新しく追加する TCP/IP リスナーのポート番号を整数で指定します。すでに別のプログラムが使用しているポート番号を使用することもできますが、そのプログラムがポートの使用を終了するまで、VPN Server はそのポートを使用できません。ポート番号は 1 以上 65535 以下で指定してください。
 CMD_ListenerCreate_PortPrompt	新しく追加する TCP/IP リスナーのポート番号: 
+CMD_ListenerCreate_Prompt_BINDIP	新しく追加する TCP/IP リスナーのバインド IP アドレス (空欄または 0.0.0.0 = すべてのネットワーク インターフェイス): 
+CMD_ListenerCreate_BINDIP	このパラメーターを指定すると、新しいリスナーをすべてのインターフェイスではなく、このサーバーの特定のローカル IPv4 アドレスにバインドします。このパラメーターを指定しない場合、または "0.0.0.0" を指定した場合は、すべてのインターフェイスで接続を受け入れます。
 
 
 # ListenerDelete コマンド
@@ -4622,6 +4631,16 @@ CMD_ProxyTrustedNetworks_Column_1	設定項目
 CMD_ProxyTrustedNetworks_Column_2	値
 CMD_ProxyTrustedNetworks_Token	信頼ネットワーク
 CMD_ProxyTrustedNetworks_Empty	(空: すべての発信元を信頼)
+
+
+# ListenerBindIp コマンド
+CMD_ListenerBindIp	TCP リスナーのバインド IP アドレスの設定
+CMD_ListenerBindIp_Help	指定した TCP リスナーがバインドするローカル IPv4 アドレスを設定します。変更を適用するためにリスナーは再起動され、そのリスナー上のすべての接続が切断されます。すべてのインターフェイスにバインドするには "0.0.0.0" を指定してください。
+このコマンドを実行するには、VPN サーバー管理者権限が必要です。
+CMD_ListenerBindIp_Args	ListenerBindIp [port] /BINDIP:ip
+CMD_ListenerBindIp_[port]	バインド IP アドレスを変更する TCP/IP リスナーのポート番号を整数で指定します。
+CMD_ListenerBindIp_BINDIP	リスナーがバインドするローカル IPv4 アドレスを指定します。すべてのインターフェイスにバインドするには "0.0.0.0" を指定してください。
+CMD_ListenerBindIp_Prompt_BINDIP	バインド IP アドレス (0.0.0.0 = すべてのインターフェイス): 
 
 
 # ListenerDisable コマンド

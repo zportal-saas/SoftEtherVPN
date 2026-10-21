@@ -137,6 +137,7 @@ struct SERVER_LISTENER
 	LISTENER *Listener;					// Listener object
 	bool DisableDos;					// Disable the DoS detection
 	bool ProxyProtocol;					// Accept the PROXY protocol header (v1/v2)
+	char BindIp[MAX_SIZE];				// Local IPv4 address to bind this listener to (empty = all interfaces)
 };
 
 // PROXY protocol global setting
@@ -414,7 +415,9 @@ void SiUnlockListenerList(SERVER *s);
 bool SiAddListener(SERVER *s, UINT port, bool enabled);
 bool SiAddListenerEx(SERVER *s, UINT port, bool enabled, bool disable_dos);
 bool SiAddListenerEx2(SERVER *s, UINT port, bool enabled, bool disable_dos, bool proxy_protocol);
+bool SiAddListenerEx3(SERVER *s, UINT port, bool enabled, bool disable_dos, bool proxy_protocol, char *bind_ip);
 bool SiSetListenerProxyProtocol(SERVER *s, UINT port, bool proxy_protocol);
+bool SiSetListenerBindIp(SERVER *s, UINT port, char *bind_ip);
 void SiSetProxyTrustedNetworksStr(SERVER *s, char *str);
 void SiGetProxyTrustedNetworksStr(SERVER *s, char *str, UINT size);
 bool SiEnableListener(SERVER *s, UINT port);

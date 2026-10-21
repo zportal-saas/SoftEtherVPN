@@ -408,6 +408,7 @@ UINT PsListenerEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsListenerDisable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsListenerProxyEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsListenerProxyDisable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PsListenerBindIpSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsProxyTrustedNetworksGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsProxyTrustedNetworksSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsPortsUDPSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);

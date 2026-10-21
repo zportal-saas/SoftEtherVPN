@@ -1229,6 +1229,7 @@ CM_HUB_DELETED_MSG		Sanal Merkez %S silindi.
 CM_LISTENER_COLUMN_1	Bağlantı Noktası Numarası
 CM_LISTENER_COLUMN_2	Durum
 CM_LISTENER_TCP_PORT	TCP %u
+CM_LISTENER_COLUMN_4	Bağlama IP Adresi
 CM_LISTENER_ONLINE		Dinleme
 CM_LISTENER_OFFLINE		Durduruldu
 CM_LISTENER_ERROR		Hata
@@ -2677,7 +2678,11 @@ STATIC2					Bağlantı noktası numarası zaten başka bir sunucu programı tara
 STATIC3					&Bağlantı Noktası Numarası:
 IDOK					&TAMAM
 IDCANCEL				İptal
-STATIC4					(TCP/IP Bağlantı Noktası)
+STATIC4				(TCP/IP Bağlantı Noktası)
+
+S_BINDIP				Bağlama IP Adresi(&B):
+S_BINDIP_NOTE				(Boş: tüm ağ arayüzleri)
+
 
 R_PROXY_PROTOCOL	PROXY protokol başlığını kabul et (v1 / v2 otomatik algılama)
 
@@ -2687,7 +2692,9 @@ CAPTION	Dinleyici Ayarları
 STATIC1	Bu TCP/IP dinleyicisinin ayarlarını değiştirebilirsiniz.
 S_PORT	TCP/IP Dinleyici: TCP %u
 R_PROXY_PROTOCOL	PROXY protokol başlığını kabul et (v1 / v2 otomatik algılama)
-STATIC2	Değişiklik hemen etkili olur. Mevcut bağlantılar etkilenmez.
+S_BINDIP				Bağlama IP Adresi(&B):
+S_BINDIP_NOTE				(Boş: tüm ağ arayüzleri. Değişiklik dinleyiciyi yeniden başlatır.)
+STATIC2	PROXY protokolü değişikliği hemen etkili olur ve mevcut bağlantıları etkilemez. Bağlama IP adresini değiştirmek dinleyiciyi yeniden başlatır ve bağlantılarını keser.
 
 PREFIX					D_SM_SSL
 CAPTION					Şifreleme ve Ağ Ayarları
@@ -4576,7 +4583,9 @@ CMD_ListenerCreate		Yeni TCP Dinleyicisi Oluşturma
 CMD_ListenerCreate_Help	Bu, sunucu üzerinde yeni bir TCP Dinleyicisi oluşturmanızı sağlar. TCP Dinleyicisi oluşturularak sunucu, belirtilen TCP/IP bağlantı noktası numarasında istemcilerden gelen bir bağlantıyı dinlemeye başlar. \nOluşturulan bir TCP Dinleyicisi ListenerDelete komutu ile silinebilir. \Ayrıca ListenerList komutunu kullanarak o anda kayıtlı olan TCP Dinleyicilerinin bir listesini alabilirsiniz. \Bu komutu çalıştırmak için VPN Server yönetici ayrıcalıklarına sahip olmanız gerekir.
 CMD_ListenerCreate_Args	ListenerCreate [port]
 CMD_ListenerCreate_[port]	Bir tamsayı kullanarak yeni eklenen TCP/IP dinleyici bağlantı noktası numarasını belirtin. Farklı bir program tarafından zaten kullanılmakta olan bir bağlantı noktası numarasını da kullanabilirsiniz; ancak VPN Sunucusu, söz konusu program bu bağlantı noktasının kullanımını sonlandırana kadar bu bağlantı noktasını kullanamayacaktır. 1'den 65535'e kadar olan aralıkta bir bağlantı noktası numarası belirtin.
-CMD_ListenerCreate_PortPrompt	Yeni eklenen TCP/IP Dinleyicisinin bağlantı noktası numarası:
+CMD_ListenerCreate_PortPrompt	Yeni eklenen TCP/IP Dinleyicisinin bağlantı noktası numarası: 
+CMD_ListenerCreate_Prompt_BINDIP	Yeni eklenen TCP/IP Dinleyicisinin bağlama IP adresi (boş veya 0.0.0.0 = tüm ağ arayüzleri): 
+CMD_ListenerCreate_BINDIP	Bu parametreyi kullanarak yeni dinleyiciyi tüm arayüzler yerine bu sunucunun belirli bir yerel IPv4 adresine bağlayabilirsiniz. Bu parametre belirtilmezse veya "0.0.0.0" olarak belirtilirse, dinleyici tüm arayüzlerdeki bağlantıları kabul eder.
 
 
 # ListenerDelete command
@@ -4621,6 +4630,16 @@ CMD_ProxyTrustedNetworks_Column_1	Ayar Öğesi
 CMD_ProxyTrustedNetworks_Column_2	Değer
 CMD_ProxyTrustedNetworks_Token	Güvenilir ağlar
 CMD_ProxyTrustedNetworks_Empty	(boş: tüm kaynaklara güven)
+
+
+# ListenerBindIp komutu
+CMD_ListenerBindIp	TCP Dinleyicisinin Bağlama IP Adresini Ayarla
+CMD_ListenerBindIp_Help	Belirtilen TCP Dinleyicisinin bağlandığı yerel IPv4 adresini ayarlar. Değişikliği uygulamak için dinleyici yeniden başlatılır ve bu dinleyicideki tüm bağlantılar kesilir. Dinleyiciyi tüm arayüzlere bağlamak için "0.0.0.0" belirtin.
+Bu komutu yürütmek için VPN Sunucusu yönetici ayrıcalıklarına sahip olmanız gerekir.
+CMD_ListenerBindIp_Args	ListenerBindIp [port] /BINDIP:ip
+CMD_ListenerBindIp_[port]	Bağlama IP adresi değiştirilecek TCP/IP dinleyicisinin bağlantı noktası numarasını tamsayı olarak belirtin.
+CMD_ListenerBindIp_BINDIP	Dinleyicinin bağlanacağı yerel IPv4 adresini belirtin. Tüm arayüzlere bağlamak için "0.0.0.0" belirtin.
+CMD_ListenerBindIp_Prompt_BINDIP	Bağlama IP adresi (0.0.0.0 = tüm arayüzler): 
 
 
 # ListenerDisable command

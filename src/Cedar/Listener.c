@@ -672,14 +672,34 @@ void ListenerTCPMainLoop(LISTENER *r)
 			{
 				if (r->ShadowIPv6 == false)
 				{
-					if (r->Cedar->Server == NULL)
+					IP *listen_ip = NULL;
+					IP bind_ip;
+
+					// Determine the IP address to bind this listener to.
+					// If this listener has its own bind IP address, use it.
+					// Otherwise fall back to the global ListenIP setting of the server.
+					Zero(&bind_ip, sizeof(bind_ip));
+					if (IsEmptyStr(r->BindIp) == false)
 					{
-						s = ListenEx2(r->Port, r->LocalOnly, r->EnableConditionalAccept, NULL);
+						if (StrToIP(&bind_ip, r->BindIp) && IsIP4(&bind_ip) && IsZeroIP(&bind_ip) == false)
+						{
+							listen_ip = &bind_ip;
+						}
 					}
-					else
+
+					if (listen_ip == NULL)
 					{
-						s = ListenEx2(r->Port, r->LocalOnly, r->EnableConditionalAccept, &r->Cedar->Server->ListenIP);
+						if (r->Cedar->Server == NULL)
+						{
+							listen_ip = NULL;
+						}
+						else
+						{
+							listen_ip = &r->Cedar->Server->ListenIP;
+						}
 					}
+
+					s = ListenEx2(r->Port, r->LocalOnly, r->EnableConditionalAccept, listen_ip);
 				}
 				else
 				{
@@ -1142,6 +1162,82 @@ LISTENER *NewListenerEx5(CEDAR *cedar, UINT proto, UINT port, THREAD_PROC *proc,
 		// Add to the Cedar
 		AddListener(cedar, r);
 	}
+
+	return r;
+}
+
+// Create a New Listener which is bound to a specific local IP address
+// The bind_ip argument is a string of an IPv4 address such as "192.168.1.10".
+// If the string is empty or "0.0.0.0", the listener is bound to all interfaces.
+// This function must be used only for TCP listeners.
+LISTENER *NewListenerBindIp(CEDAR *cedar, UINT proto, UINT port, char *bind_ip)
+{
+	LISTENER *r;
+	THREAD *t;
+	// Validate arguments
+	if ((proto == LISTENER_TCP && port == 0) || cedar == NULL)
+	{
+		return NULL;
+	}
+	if (proto != LISTENER_TCP)
+	{
+		// Other protocols are not supported. Fall back to the default behavior.
+		return NewListener(cedar, proto, port);
+	}
+
+	r = ZeroMalloc(sizeof(LISTENER));
+
+	r->ThreadProc = TCPAcceptedThread;
+	r->ThreadParam = NULL;
+	r->Cedar = cedar;
+	AddRef(r->Cedar->ref);
+	r->lock = NewLock();
+	r->ref = NewRef();
+	r->Protocol = proto;
+	r->Port = port;
+	r->Event = NewEvent();
+
+	r->DosList = NewList(CompareDos);
+
+	r->LocalOnly = false;
+	r->ShadowIPv6 = false;
+	r->NatTGlobalUdpPort = NULL;
+	r->RandPortId = 0;
+	r->EnableConditionalAccept = false;
+
+	// Set the bind IP address before the thread starts
+	if (bind_ip != NULL)
+	{
+		StrCpy(r->BindIp, sizeof(r->BindIp), bind_ip);
+	}
+	if (StrCmpi(r->BindIp, "0.0.0.0") == 0)
+	{
+		Zero(r->BindIp, sizeof(r->BindIp));
+	}
+
+	SLog(cedar, "LS_LISTENER_START_1", port);
+
+	// Creating a thread
+	t = NewThread(ListenerThread, r);
+	WaitThreadInit(t);
+	ReleaseThread(t);
+
+	// When the listener is bound to a specific IPv4 address,
+	// no shadow IPv6 listener is created because listening on all
+	// IPv6 addresses contradicts the intention of the specific binding.
+	if (IsEmptyStr(r->BindIp) == false)
+	{
+		// no shadow IPv6 listener
+	}
+	else if (r->Cedar->DisableIPv6Listener == false)
+	{
+		// Add a shadow listener
+		r->ShadowListener = NewListenerEx3(cedar, proto, port, TCPAcceptedThread, NULL,
+			false, true);
+	}
+
+	// Add to the Cedar
+	AddListener(cedar, r);
 
 	return r;
 }

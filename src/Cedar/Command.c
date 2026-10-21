@@ -7550,6 +7550,7 @@ void PsMain(PS *ps)
 			{"ListenerDisable", PsListenerDisable},
 			{"ListenerProxyEnable", PsListenerProxyEnable},
 			{"ListenerProxyDisable", PsListenerProxyDisable},
+			{"ListenerBindIp", PsListenerBindIpSet},
 			{"ProxyTrustedNetworksGet", PsProxyTrustedNetworksGet},
 			{"ProxyTrustedNetworksSet", PsProxyTrustedNetworksSet},
 			{"PortsUDPGet", PsPortsUDPGet},
@@ -23833,6 +23834,10 @@ UINT PsListenerList(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	CtInsertColumn(ct, _UU("CM_LISTENER_COLUMN_1"), false);
 	CtInsertColumn(ct, _UU("CM_LISTENER_COLUMN_2"), false);
 	CtInsertColumn(ct, _UU("CM_LISTENER_COLUMN_3"), false);
+	if (GetCapsBool(ps->CapsList, "b_support_listener_bind_ip"))
+	{
+		CtInsertColumn(ct, _UU("CM_LISTENER_COLUMN_4"), false);
+	}
 
 	for (i = 0;i < t.NumPort;i++)
 	{
@@ -23856,7 +23861,19 @@ UINT PsListenerList(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 		UniFormat(tmp, sizeof(tmp), _UU("CM_LISTENER_TCP_PORT"), t.Ports[i]);
 
-		CtInsert(ct, tmp, status, proxy_status);
+		if (GetCapsBool(ps->CapsList, "b_support_listener_bind_ip"))
+		{
+			wchar_t bindip[MAX_SIZE];
+
+			StrToUni(bindip, sizeof(bindip),
+				(t.BindIps != NULL && t.BindIps[i] != NULL && IsEmptyStr(t.BindIps[i]) == false) ? t.BindIps[i] : "0.0.0.0");
+
+			CtInsert(ct, tmp, status, proxy_status, bindip);
+		}
+		else
+		{
+			CtInsert(ct, tmp, status, proxy_status);
+		}
 	}
 
 	CtFree(ct, c);
@@ -24273,10 +24290,12 @@ UINT PsListenerCreate(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	PS *ps = (PS *)param;
 	UINT ret;
 	RPC_LISTENER t;
+	char *bindip;
 	PARAM args[] =
 	{
 		{"[port]", CmdPromptPort, _UU("CMD_ListenerCreate_PortPrompt"), CmdEvalPort, NULL},
 		{"PROXY", CmdPrompt, _UU("CMD_ListenerCreate_Prompt_PROXY"), NULL, NULL},
+		{"BINDIP", CmdPrompt, _UU("CMD_ListenerCreate_Prompt_BINDIP"), CmdEvalIp, NULL},
 	};
 
 	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
@@ -24290,7 +24309,57 @@ UINT PsListenerCreate(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	t.Port = ToInt(GetParamStr(o, "[port]"));
 	t.ProxyProtocol = GetParamYes(o, "PROXY");
 
+	bindip = GetParamStr(o, "BINDIP");
+	if (bindip != NULL)
+	{
+		StrCpy(t.BindIp, sizeof(t.BindIp), bindip);
+	}
+
 	ret = ScCreateListener(ps->Rpc, &t);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		CmdPrintError(c, ret);
+		FreeParamValueList(o);
+		return ret;
+	}
+
+	FreeParamValueList(o);
+
+	return 0;
+}
+
+// Set the bind IP address of a listener
+UINT PsListenerBindIpSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PS *ps = (PS *)param;
+	UINT ret;
+	RPC_LISTENER t;
+	char *bindip;
+	PARAM args[] =
+	{
+		{"[port]", CmdPromptPort, _UU("CMD_ListenerEnable_PortPrompt"), CmdEvalPort, NULL},
+		{"BINDIP", CmdPrompt, _UU("CMD_ListenerBindIp_Prompt_BINDIP"), CmdEvalIp, NULL},
+	};
+
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+	t.Port = ToInt(GetParamStr(o, "[port]"));
+	t.ApplyBindIp = true;
+
+	bindip = GetParamStr(o, "BINDIP");
+	if (bindip != NULL)
+	{
+		StrCpy(t.BindIp, sizeof(t.BindIp), bindip);
+	}
+
+	ret = ScSetListener(ps->Rpc, &t);
 
 	if (ret != ERR_NO_ERROR)
 	{

@@ -104,6 +104,8 @@ struct RPC_LISTENER
 	UINT Port;							// Port number
 	bool Enable;						// Active state
 	bool ProxyProtocol;					// Whether to accept the PROXY protocol header
+	bool ApplyBindIp;					// Whether to apply the BindIp field (SetListener only)
+	char BindIp[MAX_SIZE];				// Local IPv4 address to bind the listener to (empty = all interfaces)
 };
 
 // List of listeners *
@@ -114,6 +116,7 @@ struct RPC_LISTENER_LIST
 	bool *Enables;						// Effective state
 	bool *Errors;						// An error occurred
 	bool *ProxyProtocols;				// PROXY protocol state
+	char **BindIps;						// Bind IP address list (empty = all interfaces)
 };
 
 // List of ports
