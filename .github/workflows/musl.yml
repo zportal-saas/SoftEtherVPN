@@ -21,3 +21,14 @@ jobs:
         run: ./configure
       - name: make 
         run: make -C build
+      - name: Upload musl binaries as artifacts
+        if: github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v4
+        with:
+          name: musl-binaries
+          path: |
+            build/vpnserver
+            build/vpncmd
+            build/vpnclient
+            build/vpnbridge
+            build/hamcore.se2
